@@ -1,15 +1,89 @@
-# Concourse::Gem
+# Concourse
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/concourse/gem`. To experiment with that code, run `bin/console` for an interactive prompt.
+The `Concourse` gem creates rake tasks to help you manage your Concourse pipelines, and to assist in running individual tasks on your local development machine.
 
-TODO: Delete this and the text above, and describe your gem
+If you're not familiar with Concourse CI, you can read up on it at https://concourse.ci
+
+
+## Usage
+
+In your Rakefile,
+
+``` ruby
+require 'concourse'
+
+Concourse.new("myproject").create_tasks!
+```
+
+This will create a set of rake tasks for you.
+
+Tasks to manage a local pipeline file, generated from an ERB template:
+
+```
+rake concourse:clean                # remove generate pipeline file
+rake concourse:generate             # generate and validate the pipeline file for myproject
+```
+
+A task to upload your pipeline file to the cloud:
+
+```
+rake concourse:set[fly_target]      # upload the pipeline file for myproject
+```
+
+Tasks to publicly expose or hide your pipeline:
+
+```
+rake concourse:expose[fly_target]   # expose the myproject pipeline
+rake concourse:hide[fly_target]     # hide the myproject pipeline
+```
+
+Tasks to pause and unpause your pipeline:
+
+```
+rake concourse:pause[fly_target]    # pause the myproject pipeline
+rake concourse:unpause[fly_target]  # unpause the myproject pipeline
+```
+
+### `fly_target`
+
+The `fly_target` argument should be a fly target `name`, and the rake tasks assume that you're logged in already to that target.
+
+
+### Templating and `RUBIES`
+
+The ruby variable `RUBIES` is defined during the context of pipeline generation. The structure is something like:
+
+``` ruby
+  # these numbers/names align with public docker image names
+  RUBIES = {
+    mri:   %w[2.1 2.2 2.3 2.4], # docker repository: "ruby"
+    jruby: %w[1.7 9.1],         # docker repository: "jruby"
+    rbx:   %w[latest],          # docker repository: "rubinius/docker"
+  }
+```
+
+and allows you to write your pipeline like this to get coverage on all the supported rubies:
+
+``` yaml
+# myproject.yaml.erb
+jobs:
+  <% for ruby_version in RUBIES[:mri] %>
+  - name: "ruby-<%= ruby_version %>"
+    plan:
+      - get: git-master
+        trigger: true
+      - task: rake-test
+    ...
+  <% end %>
+```
+
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'concourse-gem'
+gem 'concourse'
 ```
 
 And then execute:
@@ -18,24 +92,14 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install concourse-gem
+    $ gem install concourse
 
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/Mike Dalessio/concourse-gem. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/flavorjones/concourse-gem. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
