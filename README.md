@@ -17,6 +17,9 @@ Concourse.new("myproject").create_tasks!
 
 This will create a set of rake tasks for you.
 
+
+### Managing your Concourse pipeline
+
 Tasks to manage a local pipeline file, generated from an ERB template:
 
 ```
@@ -43,6 +46,17 @@ Tasks to pause and unpause your pipeline:
 rake concourse:pause[fly_target]    # pause the myproject pipeline
 rake concourse:unpause[fly_target]  # unpause the myproject pipeline
 ```
+
+### Running tasks with `fly execute`
+
+```
+rake concourse:tasks                                        # list all the available tasks from the nokogiri pipeline
+rake concourse:task[fly_target,task_name,fly_execute_args]  # fly execute the specified task
+```
+
+where `fly_execute_args` will default to `--input=git-master=.`
+
+
 
 ### `fly_target`
 
