@@ -42,14 +42,11 @@ class Concourse
       #
       #  pipeline commands
       #
-      file pipeline_filename do
+      desc "generate and validate the pipeline file for #{project_name}"
+      task "generate" => pipeline_filename do |t|
         File.open pipeline_filename, "w" do |f|
           f.write ERB.new(File.read(pipeline_erb_filename)).result(binding)
         end
-      end
-
-      desc "generate and validate the pipeline file for #{project_name}"
-      task "generate" => pipeline_filename do |t|
         sh "fly validate-pipeline -c #{pipeline_filename}"
       end
 
@@ -89,9 +86,9 @@ class Concourse
 
       desc "fly execute the specified task"
       task "task", [:fly_target, :task_name, :fly_execute_args] => "generate" do |t, args|
-        task_name = args[:task_name]
-        fly_execute_args = args[:fly_execute_args] || "--input=git-master=."
         fly_target = Concourse.validate_fly_target t, args
+        task_name        = args[:task_name]
+        fly_execute_args = args[:fly_execute_args] || "--input=git-master=."
 
         unless task_name
           raise "ERROR: must specify a task name, like `rake #{t.name}[taskname]`"
