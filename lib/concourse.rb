@@ -6,8 +6,8 @@ class Concourse
   # these numbers/names align with public docker image names
   RUBIES = {
     mri:   %w[2.1 2.2 2.3 2.4], # docker repository: "ruby"
-    jruby: %w[1.7 9.1], # docker repository: "jruby"
-    rbx:   %w[latest], # docker repository: "rubinius/docker"
+    jruby: %w[1.7 9.1],         # docker repository: "jruby"
+    rbx:   %w[latest],          # docker repository: "rubinius/docker"
   }
 
   DIRECTORY = "concourse"
@@ -45,7 +45,7 @@ class Concourse
         end
       end
 
-      desc "generate the pipeline file for #{project_name}"
+      desc "generate and validate the pipeline file for #{project_name}"
       task "generate" => pipeline_filename do |t|
         sh "fly validate-pipeline -c #{pipeline_filename}"
       end
