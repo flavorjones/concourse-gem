@@ -36,7 +36,7 @@ The ruby variable `RUBIES` is defined in the ERB binding during pipeline file ge
 and allows you to write a pipeline like this to get coverage on all the supported rubies:
 
 ``` yaml
-# myproject.yaml.erb
+# myproject.yml.erb
 jobs:
   <% for ruby_version in RUBIES[:mri] %>
   - name: "ruby-<%= ruby_version %>"
