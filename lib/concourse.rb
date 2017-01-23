@@ -81,21 +81,21 @@ class Concourse
         end
 
         puts "Available Concourse tasks for #{project_name} are:"
-        tasks.each { |task| puts " * #{task}" }
+        tasks.sort.each { |task| puts " * #{task}" }
       end
 
       desc "fly execute the specified task"
-      task "task", [:fly_target, :task_name, :fly_execute_args] => "generate" do |t, args|
+      task "task", [:fly_target, :job_task, :fly_execute_args] => "generate" do |t, args|
         fly_target = Concourse.validate_fly_target t, args
-        task_name        = args[:task_name]
+        job_task = args[:job_task]
         fly_execute_args = args[:fly_execute_args] || "--input=#{project_name}=."
 
-        unless task_name
+        unless job_task
           raise "ERROR: must specify a task name, like `rake #{t.name}[target,taskname]`"
         end
 
-        concourse_task = find_task task_name
-        raise "ERROR: could not find task `#{task_name}`" unless concourse_task
+        concourse_task = find_task job_task
+        raise "ERROR: could not find task `#{job_task}`" unless concourse_task
 
         puts concourse_task.to_yaml
         Tempfile.create do |f|
@@ -117,8 +117,8 @@ class Concourse
     end
   end
 
-  def find_task task_name
-    job_name, task_name = *task_name.split("/")
+  def find_task job_task
+    job_name, task_name = *job_task.split("/")
     each_task do |job, task|
       return task if task["task"] == task_name && job["name"] == job_name
     end
