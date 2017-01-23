@@ -1,6 +1,6 @@
 # Concourse
 
-The `Concourse` gem creates rake tasks to help you manage your Concourse pipelines, and to assist in running individual tasks on your local development machine.
+The `Concourse` gem provides rake tasks to help you manage your Concourse pipelines, and to assist in running individual tasks with `fly execute`.
 
 If you're not familiar with Concourse CI, you can read up on it at https://concourse.ci
 
@@ -17,6 +17,42 @@ Concourse.new("myproject").create_tasks!
 
 This will create a set of rake tasks for you.
 
+Create a subdirectory named `concourse`, and edit a Concourse pipeline template named `myproject.yml.erb`.
+
+
+### Templating and `RUBIES`
+
+The ruby variable `RUBIES` is defined in the ERB binding during pipeline file generation. This variable looks like:
+
+``` ruby
+  # these numbers/names align with public docker image names
+  RUBIES = {
+    mri:   %w[2.1 2.2 2.3 2.4], # docker repository: "ruby"
+    jruby: %w[1.7 9.1],         # docker repository: "jruby"
+    rbx:   %w[latest],          # docker repository: "rubinius/docker"
+  }
+```
+
+and allows you to write a pipeline like this to get coverage on all the supported rubies:
+
+``` yaml
+# myproject.yaml.erb
+jobs:
+  <% for ruby_version in RUBIES[:mri] %>
+  - name: "ruby-<%= ruby_version %>"
+    plan:
+      - get: git-master
+        trigger: true
+      - task: rake-test
+    ...
+  <% end %>
+```
+
+
+### `fly_target`
+
+Any rake task that needs to interact with your Concourse ATC requires a `fly_target` argument. The value should be a fly target `name`, and it's assumed that you're already logged in to that target.
+
 
 ### Managing your Concourse pipeline
 
@@ -27,7 +63,7 @@ rake concourse:clean                # remove generate pipeline file
 rake concourse:generate             # generate and validate the pipeline file for myproject
 ```
 
-A task to upload your pipeline file to the cloud:
+A task to update your pipeline configuration:
 
 ```
 rake concourse:set[fly_target]      # upload the pipeline file for myproject
@@ -47,49 +83,18 @@ rake concourse:pause[fly_target]    # pause the myproject pipeline
 rake concourse:unpause[fly_target]  # unpause the myproject pipeline
 ```
 
+
 ### Running tasks with `fly execute`
 
 ```
-rake concourse:tasks                                        # list all the available tasks from the nokogiri pipeline
-rake concourse:task[fly_target,task_name,fly_execute_args]  # fly execute the specified task
+rake concourse:tasks                                       # list all the available tasks from the nokogiri pipeline
+rake concourse:task[fly_target,job_task,fly_execute_args]  # fly execute the specified task
 ```
 
-where `fly_execute_args` will default to use the project name, e.g. `--input=myproject=.`, so your pipeline should name the input resource appropriately.
+where:
 
-
-
-### `fly_target`
-
-The `fly_target` argument should be a fly target `name`, and the rake tasks assume that you're logged in already to that target.
-
-
-### Templating and `RUBIES`
-
-The ruby variable `RUBIES` is defined during the context of pipeline generation. The structure is something like:
-
-``` ruby
-  # these numbers/names align with public docker image names
-  RUBIES = {
-    mri:   %w[2.1 2.2 2.3 2.4], # docker repository: "ruby"
-    jruby: %w[1.7 9.1],         # docker repository: "jruby"
-    rbx:   %w[latest],          # docker repository: "rubinius/docker"
-  }
-```
-
-and allows you to write your pipeline like this to get coverage on all the supported rubies:
-
-``` yaml
-# myproject.yaml.erb
-jobs:
-  <% for ruby_version in RUBIES[:mri] %>
-  - name: "ruby-<%= ruby_version %>"
-    plan:
-      - get: git-master
-        trigger: true
-      - task: rake-test
-    ...
-  <% end %>
-```
+* _required_: `job_task` is formatted as `job-name/task-name`, for example, `ruby-2.4/rake-test`. Run the `concourse:tasks` rake task to see all available names.
+* _optional_: `fly_execute_args` will default to map the project directory to a resource with the project name, e.g. `--input=myproject=.`, so your pipeline must name the input resource appropriately in order to use the default.
 
 
 ## Installation
