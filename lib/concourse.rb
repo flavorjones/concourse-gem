@@ -43,7 +43,7 @@ class Concourse
       #  pipeline commands
       #
       desc "generate and validate the pipeline file for #{project_name}"
-      task "generate" => pipeline_filename do |t|
+      task "generate" do |t|
         File.open pipeline_filename, "w" do |f|
           f.write ERB.new(File.read(pipeline_erb_filename)).result(binding)
         end
