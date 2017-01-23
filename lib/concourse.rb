@@ -36,7 +36,7 @@ class Concourse
       raise "ERROR: concourse pipeline template #{pipeline_erb_filename.inspect} does not exist"
     end
 
-    CLOBBER.include pipeline_filename
+    CLOBBER.include pipeline_filename if defined?(CLOBBER)
 
     namespace :concourse do
       #
