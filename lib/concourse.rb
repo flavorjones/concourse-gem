@@ -88,10 +88,10 @@ class Concourse
       task "task", [:fly_target, :task_name, :fly_execute_args] => "generate" do |t, args|
         fly_target = Concourse.validate_fly_target t, args
         task_name        = args[:task_name]
-        fly_execute_args = args[:fly_execute_args] || "--input=git-master=."
+        fly_execute_args = args[:fly_execute_args] || "--input=#{project_name}=."
 
         unless task_name
-          raise "ERROR: must specify a task name, like `rake #{t.name}[taskname]`"
+          raise "ERROR: must specify a task name, like `rake #{t.name}[target,taskname]`"
         end
 
         concourse_task = find_task task_name

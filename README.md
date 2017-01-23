@@ -54,7 +54,7 @@ rake concourse:tasks                                        # list all the avail
 rake concourse:task[fly_target,task_name,fly_execute_args]  # fly execute the specified task
 ```
 
-where `fly_execute_args` will default to `--input=git-master=.`
+where `fly_execute_args` will default to use the project name, e.g. `--input=myproject=.`, so your pipeline should name the input resource appropriately.
 
 
 
