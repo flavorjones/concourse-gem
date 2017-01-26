@@ -1,6 +1,6 @@
 # concourse-gem changelog
 
-## 0.6.0 / 2017-01-26
+## 0.6.{0,1} / 2017-01-26
 
 If it exists, use `concourse/private.yml` to fill in template values.
 
