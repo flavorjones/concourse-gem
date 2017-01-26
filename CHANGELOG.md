@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.6.0 / 2017-01-26
+
+If it exists, use `concourse/private.yml` to fill in template values.
+
+
 ## 0.5.0 / 2017-01-23
 
 Renamed the `concourse:tasks` task name arg, and improved the README.
