@@ -11,6 +11,7 @@ class Concourse
   }
 
   DIRECTORY = "concourse"
+  PRIVATE_VAR_FILE = File.join DIRECTORY, "private.yml"
 
   attr_reader :project_name, :pipeline_filename, :pipeline_erb_filename
 
@@ -53,7 +54,15 @@ class Concourse
       desc "upload the pipeline file for #{project_name}"
       task "set", [:fly_target] => ["generate"] do |t, args|
         fly_target = Concourse.validate_fly_target t, args
-        sh "fly -t #{fly_target} set-pipeline -p #{project_name} -c #{pipeline_filename}"
+        options = [
+          "-p '#{project_name}'",
+          "-c '#{pipeline_filename}'",
+        ]
+        if File.exist? PRIVATE_VAR_FILE
+          puts "using #{PRIVATE_VAR_FILE} to resolve template vars"
+          options << "-l '#{PRIVATE_VAR_FILE}'"
+        end
+        sh "fly -t #{fly_target} set-pipeline #{options.join(" ")}"
       end
 
       %w[expose hide pause unpause].each do |command|
