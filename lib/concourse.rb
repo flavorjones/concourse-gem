@@ -1,6 +1,6 @@
-require "concourse/version"
-
 class Concourse
+  VERSION = "0.5.0"
+
   include Rake::DSL
 
   # these numbers/names align with public docker image names
