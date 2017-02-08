@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.7.0 / 2017-02-08
+
+Added a rake task to generate badges markdown.
+
+
 ## 0.6.{0,1} / 2017-01-26
 
 If it exists, use `concourse/private.yml` to fill in template values.
