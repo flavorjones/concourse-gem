@@ -23,7 +23,9 @@ class Concourse
   end
 
   def self.url_for fly_target
-    `fly targets`.split("\n").grep(/^#{fly_target}/).first.split(/ +/)[1]
+    matching_line = `fly targets`.split("\n").grep(/^#{fly_target}/).first
+    raise "invalid fly target #{fly_target}" unless matching_line
+    matching_line.split(/ +/)[1]
   end
 
   def initialize project_name
