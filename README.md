@@ -97,6 +97,19 @@ where:
 * _optional_: `fly_execute_args` will default to map the project directory to a resource with the project name, e.g. `--input=myproject=.`, so your pipeline must name the input resource appropriately in order to use the default.
 
 
+### Generating a sweet set of markdown badges
+
+Would you like a markdown table of your jobs' passing/failing badges? Of course you would.
+
+```
+rake concourse:badges[fly_target,team_name]   # display a list of jobs and badge urls
+```
+
+where:
+
+* _optional_: `team_name` is the name of the pipeline's Concourse Team. Defaults to `main`.
+
+
 ## Installation
 
 Add this line to your application's Gemfile:

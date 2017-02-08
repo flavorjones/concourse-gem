@@ -22,6 +22,10 @@ class Concourse
     return task_args[:fly_target]
   end
 
+  def self.url_for fly_target
+    `fly targets`.split("\n").grep(/^#{fly_target}/).first.split(/ +/)[1]
+  end
+
   def initialize project_name
     @project_name = project_name
     @pipeline_filename = File.join(DIRECTORY, "#{project_name}.yml")
@@ -113,13 +117,41 @@ class Concourse
           sh "fly -t #{fly_target} execute #{fly_execute_args} -c #{f.path} -x"
         end
       end
+
+      #
+      #  badge commands
+      #
+      desc "display a list of jobs and badge urls"
+      task "badges", [:fly_target, :team_name] => "generate" do |t, args|
+        fly_target = Concourse.validate_fly_target t, args
+        team_name = args[:team_name] || "main"
+        url_prefix = Concourse.url_for fly_target
+
+        puts ""
+        puts "| Build | Status |"
+        puts "|--|--|"
+
+        each_job do |job|
+          job_name = job["name"]
+          badge_url = badge_url_for url_prefix, team_name, job_name
+          job_url = job_url_for url_prefix, team_name, job_name
+
+          puts %Q'| #{titleize job_name} | [![name](#{badge_url})](#{job_url}) |'
+        end
+      end
+    end
+  end
+
+  def each_job
+    pipeline = YAML.load_file(pipeline_filename)
+
+    pipeline["jobs"].each do |job|
+      yield job
     end
   end
 
   def each_task
-    pipeline = YAML.load_file(pipeline_filename)
-
-    pipeline["jobs"].each do |job|
+    each_job do |job|
       job["plan"].each do |task|
         yield job, task if task["task"]
       end
@@ -132,5 +164,30 @@ class Concourse
       return task if task["task"] == task_name && job["name"] == job_name
     end
     nil
+  end
+
+  def titleize string
+    string.gsub(/[^a-zA-Z0-9\.]/, " ")
+  end
+
+  def badge_url_for url_prefix, team_name, job_name
+    File.join url_prefix,
+              "api/v1/teams",
+              team_name,
+              "pipelines",
+              project_name,
+              "jobs",
+              job_name,
+              "badge"
+  end
+
+  def job_url_for url_prefix, team_name, job_name
+    File.join url_prefix,
+              "teams",
+              team_name,
+              "pipelines",
+              project_name,
+              "jobs",
+              job_name
   end
 end
