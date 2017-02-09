@@ -34,6 +34,10 @@ class Concourse
     @pipeline_erb_filename = "#{pipeline_filename}.erb"
   end
 
+  def erbify document_string, *args
+    ERB.new(document_string, nil, "%-").result(binding)
+  end
+
   def create_tasks!
     unless Dir.exist? DIRECTORY
       mkdir_p DIRECTORY
@@ -52,7 +56,7 @@ class Concourse
       desc "generate and validate the pipeline file for #{project_name}"
       task "generate" do |t|
         File.open pipeline_filename, "w" do |f|
-          f.write ERB.new(File.read(pipeline_erb_filename)).result(binding)
+          f.write erbify(File.read(pipeline_erb_filename))
         end
         sh "fly validate-pipeline -c #{pipeline_filename}"
       end
