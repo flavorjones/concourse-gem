@@ -127,7 +127,6 @@ class Concourse
       task "badges", [:fly_target, :team_name] => "generate" do |t, args|
         fly_target = Concourse.validate_fly_target t, args
         team_name = args[:team_name] || "main"
-        url_prefix = Concourse.url_for fly_target
 
         puts ""
         puts "| Build | Status |"
@@ -135,10 +134,7 @@ class Concourse
 
         each_job do |job|
           job_name = job["name"]
-          badge_url = badge_url_for url_prefix, team_name, job_name
-          job_url = job_url_for url_prefix, team_name, job_name
-
-          puts %Q'| #{titleize job_name} | [![name](#{badge_url})](#{job_url}) |'
+          puts "| #{titleize job_name} | #{markdown_badge fly_target, team_name, job_name} |"
         end
       end
     end
@@ -170,6 +166,11 @@ class Concourse
 
   def titleize string
     string.gsub(/[^a-zA-Z0-9\.]/, " ")
+  end
+
+  def markdown_badge fly_target, team_name, job_name
+    url_prefix = Concourse.url_for fly_target
+    "[![name](#{badge_url_for(url_prefix, team_name, job_name)})](#{job_url_for(url_prefix, team_name, job_name)})"
   end
 
   def badge_url_for url_prefix, team_name, job_name
