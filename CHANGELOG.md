@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.10.0 / 2017-02-08
+
+Add `destroy` and `abort-builds` tasks.
+
+
 ## 0.9.0 / 2017-02-08
 
 Bugfix: run `fly execute` with a clean Bundler environment, to avoid accidentally injecting our environment variables into the running task.
