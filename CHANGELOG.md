@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.8.0 / 2017-02-08
+
+Expose `#erbify` and `#markdown_badge` methods.
+
+
 ## 0.7.0 / 2017-02-08
 
 Added a rake task to generate badges markdown.
