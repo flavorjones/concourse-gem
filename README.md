@@ -83,6 +83,14 @@ rake concourse:pause[fly_target]    # pause the myproject pipeline
 rake concourse:unpause[fly_target]  # unpause the myproject pipeline
 ```
 
+And, should you ever need to [nuke the site from orbit][ripley], a task to destroy your pipeline:
+
+```
+rake concourse:destroy[fly_target]  # destroy the myproject pipeline
+```
+
+
+  [ripley]: https://www.youtube.com/watch?v=aCbfMkh940Q
 
 ### Running tasks with `fly execute`
 
@@ -95,6 +103,13 @@ where:
 
 * _required_: `job_task` is formatted as `job-name/task-name`, for example, `ruby-2.4/rake-test`. Run the `concourse:tasks` rake task to see all available names.
 * _optional_: `fly_execute_args` will default to map the project directory to a resource with the project name, e.g. `--input=myproject=.`, so your pipeline must name the input resource appropriately in order to use the default.
+
+
+### Aborting running builds
+
+```
+rake concourse:abort-builds[fly_target]  # abort all running builds for this pipeline
+```
 
 
 ### Generating a sweet set of markdown badges

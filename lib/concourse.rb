@@ -75,7 +75,7 @@ class Concourse
         sh "fly -t #{fly_target} set-pipeline #{options.join(" ")}"
       end
 
-      %w[expose hide pause unpause].each do |command|
+      %w[expose hide pause unpause destroy].each do |command|
         desc "#{command} the #{project_name} pipeline"
         task "#{command}", [:fly_target] do |t, args|
           fly_target = Concourse.validate_fly_target t, args
@@ -124,6 +124,22 @@ class Concourse
             sh "fly -t #{fly_target} execute #{fly_execute_args} -c #{f.path} -x"
           end
         end
+      end
+
+      #
+      #  builds commands
+      #
+      desc "abort all running builds for this pipeline"
+      task "abort-builds", [:fly_target] do |t, args|
+        fly_target = Concourse.validate_fly_target t, args
+
+        `fly -t #{fly_target} builds`.split("\n").each do |line|
+          pipeline_job, build_id, status = *line.split(/\s+/)[1,3]
+          next unless status == "started"
+
+          sh "fly -t #{fly_target} abort-build -j #{pipeline_job} -b #{build_id}"
+        end
+# fly -t flavorjones-oss-concourse builds | fgrep started | awk '{print "-j", $2, "-b", $3}' | xargs -d "\n" -n1 echo fly -t flavorjones-oss-concourse abort-build | bash
       end
 
       #
