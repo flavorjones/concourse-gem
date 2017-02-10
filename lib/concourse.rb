@@ -117,7 +117,7 @@ class Concourse
         raise "ERROR: could not find task `#{job_task}`" unless concourse_task
 
         puts concourse_task.to_yaml
-        Tempfile.create do |f|
+        Tempfile.create("concourse-task") do |f|
           f.write concourse_task["config"].to_yaml
           f.close
           Bundler.with_clean_env do
