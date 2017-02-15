@@ -1,4 +1,5 @@
 require "concourse/version"
+require "yaml"
 
 class Concourse
   include Rake::DSL
