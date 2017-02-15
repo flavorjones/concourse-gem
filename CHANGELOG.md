@@ -1,5 +1,16 @@
 # concourse-gem changelog
 
+## 0.12.0 / 2017-02-14
+
+### Features
+
+* rake task `concourse:init`
+
+### Bug fixes
+
+* properly require 'yaml'
+
+
 ## 0.11.0 / 2017-02-14
 
 Stop using `myproject.yml.erb` and just interpret `myproject.yml` as an ERB template. @jtarchie was right. He's always right.
