@@ -30,8 +30,8 @@ class Concourse
 
   def initialize project_name
     @project_name = project_name
-    @pipeline_filename = File.join(DIRECTORY, "#{project_name}.yml")
-    @pipeline_erb_filename = "#{pipeline_filename}.erb"
+    @pipeline_filename = File.join(DIRECTORY, "#{project_name}.final.yml")
+    @pipeline_erb_filename = File.join(DIRECTORY, "#{project_name}.yml")
   end
 
   def erbify document_string, *args

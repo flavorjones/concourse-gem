@@ -17,7 +17,7 @@ Concourse.new("myproject").create_tasks!
 
 This will create a set of rake tasks for you.
 
-Create a subdirectory named `concourse`, and edit a Concourse pipeline template named `myproject.yml.erb`.
+Create a subdirectory named `concourse`, and edit a Concourse pipeline file named `myproject.yml`, whichi will be interpreted as an ERB template.
 
 
 ### Templating and `RUBIES`
@@ -36,7 +36,7 @@ The ruby variable `RUBIES` is defined in the ERB binding during pipeline file ge
 and allows you to write a pipeline like this to get coverage on all the supported rubies:
 
 ``` yaml
-# myproject.yml.erb
+# myproject.yml
 jobs:
   <% for ruby_version in RUBIES[:mri] %>
   - name: "ruby-<%= ruby_version %>"

@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.11.0 / 2017-02-14
+
+Stop using `myproject.yml.erb` and just interpret `myproject.yml` as an ERB template. @jtarchie was right. He's always right.
+
+
 ## 0.10.0 / 2017-02-08
 
 Add `destroy` and `abort-builds` tasks.
