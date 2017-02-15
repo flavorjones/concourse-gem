@@ -45,12 +45,26 @@ class Concourse
     end
 
     unless File.exist? pipeline_erb_filename
-      raise "ERROR: concourse pipeline template #{pipeline_erb_filename.inspect} does not exist"
+      warn "WARNING: concourse template #{pipeline_erb_filename.inspect} does not exist, run `rake concourse:init`"
     end
 
     CLOBBER.include pipeline_filename if defined?(CLOBBER)
 
     namespace :concourse do
+      #
+      #  project commands
+      #
+      desc "bootstrap a concourse config"
+      task :init do
+        FileUtils.mkdir_p "concourse"
+        FileUtils.mkdir_p "concourse/tasks"
+        FileUtils.touch pipeline_erb_filename
+        File.open ".gitignore", "a" do |f|
+          f.puts "concourse/private.yml"
+          f.puts "concourse/#{project_name}.final.yml"
+        end
+      end
+
       #
       #  pipeline commands
       #
