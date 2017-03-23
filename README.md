@@ -17,7 +17,45 @@ Concourse.new("myproject").create_tasks!
 
 This will create a set of rake tasks for you.
 
-Create a subdirectory named `concourse`, and edit a Concourse pipeline file named `myproject.yml`, whichi will be interpreted as an ERB template.
+``` sh
+rake concourse:init
+```
+
+The `concourse:init` task will create a subdirectory named `concourse`, and create a Concourse pipeline file named `myproject.yml`, which will be interpreted as an ERB template. It will also ensure that files with sensitive data (`concourse/private.yml` and `concourse/myproject.final.yml`) are in `.gitignore`.
+
+
+### Concourse subdirectory name
+
+You can choose a directory name other than `concourse`:
+
+``` ruby
+Concourse.new("myproject", directory: "ci").create_tasks!
+```
+
+
+### Keeping credentials private
+
+If the file `concourse/private.yml` exists, it will be passed to the `fly` commandline with the `-l` option to fill in template values.
+
+For example, I might have a concourse config that looks like this:
+
+``` yaml
+  - name: nokogiri-pr
+    type: pull-request
+    source:
+      repo: sparklemotion/nokogiri
+      access_token: {{github-repo-status-access-token}}
+      ignore_paths:
+        - concourse/**
+```
+
+I can put my access token in `private.yml` like this:
+
+``` yaml
+github-repo-status-access-token: "your-token-here"
+```
+
+and the final generate template will substitute your credentials into the appropriate place.
 
 
 ### Templating and `RUBIES`
