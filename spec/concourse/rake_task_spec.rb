@@ -38,7 +38,6 @@ RSpec.describe Concourse do
     let(:concourse) { Concourse.new "myproject", directory: "ci" }
 
     describe "init" do
-
       it "creates directory and empty pipeline" do
         in_tmp_dir do
           concourse.rake_init

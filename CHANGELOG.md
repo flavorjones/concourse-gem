@@ -1,5 +1,12 @@
 # concourse-gem changelog
 
+## 0.13.0 / 2017-03-23
+
+### Features
+
+* allow setting of concourse directory name
+
+
 ## 0.12.0 / 2017-02-14
 
 ### Features
