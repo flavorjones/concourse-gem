@@ -11,10 +11,9 @@ class Concourse
     rbx:   %w[latest],          # docker repository: "rubinius/docker"
   }
 
-  DIRECTORY = "concourse"
-  PRIVATE_VAR_FILE = File.join DIRECTORY, "private.yml"
+  DEFAULT_DIRECTORY = "concourse"
 
-  attr_reader :project_name, :pipeline_filename, :pipeline_erb_filename
+  attr_reader :project_name, :pipeline_filename, :pipeline_erb_filename, :directory, :private_var_file
 
   def self.validate_fly_target task, task_args
     unless task_args[:fly_target]
@@ -29,19 +28,30 @@ class Concourse
     matching_line.split(/ +/)[1]
   end
 
-  def initialize project_name
+  def initialize project_name, directory: DEFAULT_DIRECTORY
     @project_name = project_name
-    @pipeline_filename = File.join(DIRECTORY, "#{project_name}.final.yml")
-    @pipeline_erb_filename = File.join(DIRECTORY, "#{project_name}.yml")
+    @directory = directory
+    @pipeline_filename = File.join(@directory, "#{project_name}.final.yml")
+    @pipeline_erb_filename = File.join(@directory, "#{project_name}.yml")
+    @private_var_file = File.join(@directory, "private.yml")
   end
 
   def erbify document_string, *args
     ERB.new(document_string, nil, "%-").result(binding)
   end
 
+  def rake_init
+    FileUtils.mkdir_p File.join(directory, "tasks")
+    FileUtils.touch pipeline_erb_filename
+    File.open ".gitignore", "a" do |f|
+      f.puts private_var_file
+      f.puts pipeline_filename
+    end
+  end
+
   def create_tasks!
-    unless Dir.exist? DIRECTORY
-      mkdir_p DIRECTORY
+    unless Dir.exist? directory
+      mkdir_p directory
     end
 
     unless File.exist? pipeline_erb_filename
@@ -56,13 +66,7 @@ class Concourse
       #
       desc "bootstrap a concourse config"
       task :init do
-        FileUtils.mkdir_p "concourse"
-        FileUtils.mkdir_p "concourse/tasks"
-        FileUtils.touch pipeline_erb_filename
-        File.open ".gitignore", "a" do |f|
-          f.puts "concourse/private.yml"
-          f.puts "concourse/#{project_name}.final.yml"
-        end
+        rake_init
       end
 
       #
@@ -83,9 +87,9 @@ class Concourse
           "-p '#{project_name}'",
           "-c '#{pipeline_filename}'",
         ]
-        if File.exist? PRIVATE_VAR_FILE
-          puts "using #{PRIVATE_VAR_FILE} to resolve template vars"
-          options << "-l '#{PRIVATE_VAR_FILE}'"
+        if File.exist? private_var_file
+          puts "using #{private_var_file} to resolve template vars"
+          options << "-l '#{private_var_file}'"
         end
         sh "fly -t #{fly_target} set-pipeline #{options.join(" ")}"
       end
