@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.14.0 / unreleased
+
+* Removed badge functionality. IMHO: too complicated, not useful
+
+
 ## 0.13.0 / 2017-03-23
 
 ### Features

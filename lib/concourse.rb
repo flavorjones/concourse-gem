@@ -158,25 +158,6 @@ class Concourse
 
           sh "fly -t #{fly_target} abort-build -j #{pipeline_job} -b #{build_id}"
         end
-# fly -t flavorjones-oss-concourse builds | fgrep started | awk '{print "-j", $2, "-b", $3}' | xargs -d "\n" -n1 echo fly -t flavorjones-oss-concourse abort-build | bash
-      end
-
-      #
-      #  badge commands
-      #
-      desc "display a list of jobs and badge urls"
-      task "badges", [:fly_target, :team_name] => "generate" do |t, args|
-        fly_target = Concourse.validate_fly_target t, args
-        team_name = args[:team_name] || "main"
-
-        puts ""
-        puts "| Build | Status |"
-        puts "|--|--|"
-
-        each_job do |job|
-          job_name = job["name"]
-          puts "| #{titleize job_name} | #{markdown_badge fly_target, team_name, job_name} |"
-        end
       end
     end
   end
@@ -203,35 +184,5 @@ class Concourse
       return task if task["task"] == task_name && job["name"] == job_name
     end
     nil
-  end
-
-  def titleize string
-    string.gsub(/[^a-zA-Z0-9\.]/, " ")
-  end
-
-  def markdown_badge fly_target, team_name, job_name
-    url_prefix = Concourse.url_for fly_target
-    "[![name](#{badge_url_for(url_prefix, team_name, job_name)})](#{job_url_for(url_prefix, team_name, job_name)})"
-  end
-
-  def badge_url_for url_prefix, team_name, job_name
-    File.join url_prefix,
-              "api/v1/teams",
-              team_name,
-              "pipelines",
-              project_name,
-              "jobs",
-              job_name,
-              "badge"
-  end
-
-  def job_url_for url_prefix, team_name, job_name
-    File.join url_prefix,
-              "teams",
-              team_name,
-              "pipelines",
-              project_name,
-              "jobs",
-              job_name
   end
 end
