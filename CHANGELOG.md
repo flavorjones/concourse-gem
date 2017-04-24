@@ -1,8 +1,9 @@
 # concourse-gem changelog
 
-## 0.14.0 / unreleased
+## 0.14.0 / 2017-04-23
 
 * Removed badge functionality. IMHO: too complicated, not useful
+* Restoring support for Ruby 1.9 (for JRuby 1.7), ugh.
 
 
 ## 0.13.0 / 2017-03-23

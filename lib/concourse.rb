@@ -28,9 +28,9 @@ class Concourse
     matching_line.split(/ +/)[1]
   end
 
-  def initialize project_name, directory: DEFAULT_DIRECTORY
+  def initialize project_name, args={}
     @project_name = project_name
-    @directory = directory
+    @directory = args[:directory] || DEFAULT_DIRECTORY
     @pipeline_filename = File.join(@directory, "#{project_name}.final.yml")
     @pipeline_erb_filename = File.join(@directory, "#{project_name}.yml")
     @private_var_file = File.join(@directory, "private.yml")
