@@ -1,5 +1,6 @@
 require "concourse/version"
 require "yaml"
+require "tempfile"
 
 class Concourse
   include Rake::DSL
