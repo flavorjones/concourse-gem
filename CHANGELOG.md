@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.16.0 / 2017-09-24
+
+Bugfix: require "tempfile", we've been relying on the class being implicitly loaded
+
+
 ## 0.15.0 / 2017-09-24
 
 * Add awareness of Windows Rubies (implicitly linked with https://github.com/flavorjones/windows-ruby-dev-tools-release)
