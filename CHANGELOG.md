@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.15.0 / 2017-09-24
+
+* Add awareness of Windows Rubies (implicitly linked with https://github.com/flavorjones/windows-ruby-dev-tools-release)
+
+
 ## 0.14.0 / 2017-04-23
 
 * Removed badge functionality. IMHO: too complicated, not useful
