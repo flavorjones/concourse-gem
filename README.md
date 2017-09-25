@@ -65,9 +65,10 @@ The ruby variable `RUBIES` is defined in the ERB binding during pipeline file ge
 ``` ruby
   # these numbers/names align with public docker image names
   RUBIES = {
-    mri:   %w[2.1 2.2 2.3 2.4], # docker repository: "ruby"
-    jruby: %w[1.7 9.1],         # docker repository: "jruby"
-    rbx:   %w[latest],          # docker repository: "rubinius/docker"
+    mri:     %w[2.1 2.2 2.3 2.4], # docker repository: "ruby"
+    jruby:   %w[1.7 9.1],         # docker repository: "jruby"
+    rbx:     %w[latest],          # docker repository: "rubinius/docker"
+    windows: %w[2.3 2.4]          # windows-ruby-dev-tools-release
   }
 ```
 
@@ -85,6 +86,8 @@ jobs:
     ...
   <% end %>
 ```
+
+Note that the `windows` rubies are not Docker images, since Concourse's Houdini backend doesn't use Docker. Instead, these are implicitly referring to the supported ruby versions installed by the BOSH release at https://github.com/flavorjones/windows-ruby-dev-tools-release
 
 
 ### `fly_target`
