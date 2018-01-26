@@ -1,5 +1,11 @@
 # concourse-gem changelog
 
+## 0.17.0 / 2017-09-24
+
+* Add support for Ruby 2.5 (in general and on Windows)
+* Remove `fly` `-x` argument to work with Concourse 3.7.0+
+
+
 ## 0.16.0 / 2017-09-24
 
 Bugfix: require "tempfile", we've been relying on the class being implicitly loaded
