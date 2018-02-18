@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## unreleased
+
+* Better default for `input` args to `concourse:task`: use the local directory for all the inputs. This matches the pattern where two different resources are used for ci scripts and the source under test.
+
+
 ## 0.17.0 / 2017-09-24
 
 * Add support for Ruby 2.5 (in general and on Windows)

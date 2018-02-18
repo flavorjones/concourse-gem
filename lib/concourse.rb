@@ -30,6 +30,14 @@ class Concourse
     matching_line.split(/ +/)[1]
   end
 
+  def self.default_execute_args task
+    args = []
+    task["config"]["inputs"].each do |input|
+      args << "--input=#{input["name"]}=."
+    end
+    args.join(" ")
+  end
+
   def initialize project_name, args={}
     @project_name = project_name
     @directory = args[:directory] || DEFAULT_DIRECTORY
@@ -127,15 +135,16 @@ class Concourse
       desc "fly execute the specified task"
       task "task", [:fly_target, :job_task, :fly_execute_args] => "generate" do |t, args|
         fly_target = Concourse.validate_fly_target t, args
-        job_task = args[:job_task]
-        fly_execute_args = args[:fly_execute_args] || "--input=#{project_name}=."
 
+        job_task = args[:job_task]
         unless job_task
           raise "ERROR: must specify a task name, like `rake #{t.name}[target,taskname]`"
         end
 
         concourse_task = find_task job_task
         raise "ERROR: could not find task `#{job_task}`" unless concourse_task
+
+        fly_execute_args = args[:fly_execute_args] || Concourse.default_execute_args(concourse_task)
 
         puts concourse_task.to_yaml
         Tempfile.create("concourse-task") do |f|
