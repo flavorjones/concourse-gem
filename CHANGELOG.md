@@ -1,6 +1,6 @@
 # concourse-gem changelog
 
-## unreleased
+## 0.18.0 / 2018-02-18
 
 * Better default for `input` args to `concourse:task`: use the local directory for all the inputs. This matches the pattern where two different resources are used for ci scripts and the source under test.
 
