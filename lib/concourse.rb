@@ -8,7 +8,7 @@ class Concourse
   # these numbers/names align with public docker image names
   RUBIES = {
     mri:     %w[2.1 2.2 2.3 2.4 2.5], # docker repository: "ruby"
-    jruby:   %w[1.7 9.1],             # docker repository: "jruby"
+    jruby:   %w[9.1 9.2],             # docker repository: "jruby"
     rbx:     %w[latest],              # docker repository: "rubinius/docker"
     windows: %w[2.3 2.4 2.5]          # windows-ruby-dev-tools-release
   }
