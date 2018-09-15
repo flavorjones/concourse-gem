@@ -1,5 +1,14 @@
 # concourse-gem changelog
 
+## 0.19.0 / 2018-09-15
+
+Several version of Ruby have reached EOL and have been removed from `RUBIES`:
+
+- ruby 2.1: https://www.ruby-lang.org/en/news/2017/04/01/support-of-ruby-2-1-has-ended/
+- ruby 2.2: https://www.ruby-lang.org/en/news/2018/06/20/support-of-ruby-2-2-has-ended/
+- jruby 1.7: https://github.com/jruby/jruby/issues/4112
+
+
 ## 0.18.0 / 2018-02-18
 
 * Better default for `input` args to `concourse:task`: use the local directory for all the inputs. This matches the pattern where two different resources are used for ci scripts and the source under test.
