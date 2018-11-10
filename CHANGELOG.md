@@ -1,5 +1,11 @@
 # concourse-gem changelog
 
+## 0.20.0 / 2018-11-09
+
+* Introduce ruby 2.6-rc
+* Introduce helper methods `production_rubies` and `rc_rubies`
+
+
 ## 0.19.0 / 2018-09-15
 
 Several version of Ruby have reached EOL and have been removed from `RUBIES`:
