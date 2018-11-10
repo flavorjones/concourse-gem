@@ -7,7 +7,7 @@ class Concourse
 
   # these numbers/names align with public docker image names
   RUBIES = {
-    mri:     %w[2.3 2.4 2.5], # docker repository: "ruby"
+    mri:     %w[2.3 2.4 2.5 2.6-rc], # docker repository: "ruby"
     jruby:   %w[9.1 9.2],     # docker repository: "jruby"
     rbx:     %w[latest],      # docker repository: "rubinius/docker"
     windows: %w[2.3 2.4 2.5]  # windows-ruby-dev-tools-release
@@ -36,6 +36,14 @@ class Concourse
       args << "--input=#{input["name"]}=."
     end
     args.join(" ")
+  end
+
+  def self.production_rubies
+    RUBIES[:mri].reject { |r| r =~ /rc/ }
+  end
+
+  def self.rc_rubies
+    RUBIES[:mri].select { |r| r =~ /rc/ }
   end
 
   def initialize project_name, args={}
