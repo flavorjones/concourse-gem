@@ -17,13 +17,6 @@ class Concourse
 
   attr_reader :project_name, :pipeline_filename, :pipeline_erb_filename, :directory, :private_var_file
 
-  def self.validate_fly_target task, task_args
-    unless task_args[:fly_target]
-      raise "ERROR: must specify a fly target, like `rake #{task.name}[targetname]`"
-    end
-    return task_args[:fly_target]
-  end
-
   def self.url_for fly_target
     matching_line = `fly targets`.split("\n").grep(/^#{fly_target}/).first
     raise "invalid fly target #{fly_target}" unless matching_line
@@ -100,7 +93,7 @@ class Concourse
 
       desc "upload the pipeline file for #{project_name}"
       task "set", [:fly_target] => ["generate"] do |t, args|
-        fly_target = Concourse.validate_fly_target t, args
+        fly_target = args[:fly_target] || :default
         options = [
           "-p '#{project_name}'",
           "-c '#{pipeline_filename}'",
@@ -115,7 +108,7 @@ class Concourse
       %w[expose hide pause unpause destroy].each do |command|
         desc "#{command} the #{project_name} pipeline"
         task "#{command}", [:fly_target] do |t, args|
-          fly_target = Concourse.validate_fly_target t, args
+          fly_target = args[:fly_target] || :default
           sh "fly -t #{fly_target} #{command}-pipeline -p #{project_name}"
         end
       end
@@ -142,7 +135,7 @@ class Concourse
 
       desc "fly execute the specified task"
       task "task", [:fly_target, :job_task, :fly_execute_args] => "generate" do |t, args|
-        fly_target = Concourse.validate_fly_target t, args
+        fly_target = args[:fly_target] || :default
 
         job_task = args[:job_task]
         unless job_task
@@ -169,7 +162,7 @@ class Concourse
       #
       desc "abort all running builds for this pipeline"
       task "abort-builds", [:fly_target] do |t, args|
-        fly_target = Concourse.validate_fly_target t, args
+        fly_target = args[:fly_target] || :default
 
         `fly -t #{fly_target} builds`.each_line do |line|
           pipeline_job, build_id, status = *line.split(/\s+/)[1,3]
