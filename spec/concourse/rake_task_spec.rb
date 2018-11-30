@@ -1,4 +1,5 @@
 require "spec_helper"
+require 'securerandom'
 
 RSpec.describe Concourse do
   describe ".new" do
@@ -22,6 +23,30 @@ RSpec.describe Concourse do
 
       it "optionally accepts a directory name" do
         expect(Concourse.new("myproject", directory: "ci").directory).to eq "ci"
+      end
+    end
+
+    describe '#pipeline_filename' do
+      subject { instance.pipeline_filename }
+
+      let(:instance) { Concourse.new(project_name, args) }
+      let(:project_name) { 'myproject' }
+
+      context 'when no pipeline_filename is specified' do
+        let(:args) { {} }
+
+        it "defaults to use project_name" do
+          expect(subject).to eq "#{instance.directory}/#{project_name}.final.yml"
+        end
+      end
+
+      context 'when pipeline_filename is specified' do
+        let(:args) { {pipeline_filename: pipeline_filename} }
+        let(:pipeline_filename) { SecureRandom.hex(12) }
+
+        it 'uses the specified pipeline_filename' do
+          expect(subject).to eq "#{instance.directory}/#{pipeline_filename}"
+        end
       end
     end
   end

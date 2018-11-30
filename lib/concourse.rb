@@ -49,9 +49,9 @@ class Concourse
   def initialize project_name, args={}
     @project_name = project_name
     @directory = args[:directory] || DEFAULT_DIRECTORY
-    @pipeline_filename = File.join(@directory, "#{project_name}.final.yml")
-    @pipeline_erb_filename = File.join(@directory, "#{project_name}.yml")
-    @private_var_file = File.join(@directory, "private.yml")
+    @pipeline_filename = File.join(@directory, args[:pipeline_filename] || "#{project_name}.final.yml")
+    @pipeline_erb_filename = File.join(@directory, args[:pipeline_erb_filename] || "#{project_name}.yml")
+    @private_var_file = File.join(@directory, args[:private_var_file] || "private.yml")
   end
 
   def erbify document_string, *args
