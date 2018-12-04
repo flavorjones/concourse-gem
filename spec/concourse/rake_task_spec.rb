@@ -48,6 +48,15 @@ RSpec.describe Concourse do
           expect(subject).to eq "#{instance.directory}/#{pipeline_filename}"
         end
       end
+
+      context 'when pipeline_erb_filename is specified' do
+        let(:args) { {pipeline_erb_filename: "#{pipeline_erb_filename}.yml"} }
+        let(:pipeline_erb_filename) { SecureRandom.hex(12) }
+
+        it 'derives the pipeline_filename from the pipeline_erb_filename' do
+          expect(subject).to eq "#{instance.directory}/#{pipeline_erb_filename}.final.yml"
+        end
+      end
     end
   end
 
