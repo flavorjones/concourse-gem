@@ -15,7 +15,7 @@ class Concourse
 
   DEFAULT_DIRECTORY = "concourse"
 
-  attr_reader :project_name, :pipeline_filename, :pipeline_erb_filename, :directory, :private_var_file, :default_fly_target
+  attr_reader :project_name, :pipeline_filename, :pipeline_erb_filename, :directory, :private_var_file, :fly_target
 
   def self.url_for fly_target
     matching_line = `fly targets`.split("\n").grep(/^#{fly_target}/).first
@@ -45,7 +45,7 @@ class Concourse
     @pipeline_filename = File.join(@directory, "#{project_name}.final.yml")
     @pipeline_erb_filename = File.join(@directory, "#{project_name}.yml")
     @private_var_file = File.join(@directory, "private.yml")
-    @default_fly_target = args[:fly_target] || :default
+    @fly_target = args[:fly_target] || :default
   end
 
   def erbify document_string, *args
@@ -93,8 +93,7 @@ class Concourse
       end
 
       desc "upload the pipeline file for #{project_name}"
-      task "set", [:fly_target] => ["generate"] do |t, args|
-        fly_target = args[:fly_target] || default_fly_target
+      task "set" => ["generate"] do |t, args|
         options = [
           "-p '#{project_name}'",
           "-c '#{pipeline_filename}'",
@@ -108,8 +107,7 @@ class Concourse
 
       %w[expose hide pause unpause destroy].each do |command|
         desc "#{command} the #{project_name} pipeline"
-        task "#{command}", [:fly_target] do |t, args|
-          fly_target = args[:fly_target] || default_fly_target
+        task command do |t, args|
           sh "fly -t #{fly_target} #{command}-pipeline -p #{project_name}"
         end
       end
@@ -135,9 +133,7 @@ class Concourse
       end
 
       desc "fly execute the specified task"
-      task "task", [:fly_target, :job_task, :fly_execute_args] => "generate" do |t, args|
-        fly_target = args[:fly_target] || default_fly_target
-
+      task "task", [:job_task, :fly_execute_args] => "generate" do |t, args|
         job_task = args[:job_task]
         unless job_task
           raise "ERROR: must specify a task name, like `rake #{t.name}[target,taskname]`"
@@ -162,9 +158,7 @@ class Concourse
       #  builds commands
       #
       desc "abort all running builds for this pipeline"
-      task "abort-builds", [:fly_target] do |t, args|
-        fly_target = args[:fly_target] || default_fly_target
-
+      task "abort-builds" do |t, args|
         `fly -t #{fly_target} builds`.split("\n").each do |line|
           pipeline_job, build_id, status = *line.split(/\s+/)[1,3]
           next unless status == "started"
