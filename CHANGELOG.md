@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.21.0 / 2018-12-26
+
+* Introduce ruby 2.6 final (and remove 2.6-rc)
+
+
 ## 0.20.0 / 2018-11-09
 
 * Introduce ruby 2.6-rc
