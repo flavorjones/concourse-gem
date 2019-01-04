@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## unreleased
+
+* Introduce rake task `concourse:prune-stalled-workers`
+
+
 ## 0.21.0 / 2018-12-26
 
 * Introduce ruby 2.6 final (and remove 2.6-rc)

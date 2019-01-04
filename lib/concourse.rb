@@ -171,11 +171,24 @@ class Concourse
       task "abort-builds", [:fly_target] do |t, args|
         fly_target = Concourse.validate_fly_target t, args
 
-        `fly -t #{fly_target} builds`.split("\n").each do |line|
+        `fly -t #{fly_target} builds`.each_line do |line|
           pipeline_job, build_id, status = *line.split(/\s+/)[1,3]
           next unless status == "started"
 
           sh "fly -t #{fly_target} abort-build -j #{pipeline_job} -b #{build_id}"
+        end
+      end
+
+      #
+      #  worker commands
+      #
+      desc "prune any stalled workers"
+      task "prune-stalled-workers", [:fly_target] do |t, args|
+        fly_target = Concourse.validate_fly_target t, args
+
+        `fly -t #{fly_target} workers | fgrep stalled`.each_line do |line|
+          worker_id = line.split.first
+          system('fly -t #{fly_target} prune-worker -w #{worker_id}')
         end
       end
     end
