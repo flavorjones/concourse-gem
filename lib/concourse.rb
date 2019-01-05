@@ -188,7 +188,7 @@ class Concourse
 
         `fly -t #{fly_target} workers | fgrep stalled`.each_line do |line|
           worker_id = line.split.first
-          system('fly -t #{fly_target} prune-worker -w #{worker_id}')
+          system("fly -t #{fly_target} prune-worker -w #{worker_id}")
         end
       end
     end
