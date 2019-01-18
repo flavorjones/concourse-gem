@@ -1,9 +1,14 @@
 require "concourse/version"
 require "yaml"
 require "tempfile"
+require 'term/ansicolor'
 
 class Concourse
   include Rake::DSL
+  include Term::ANSIColor
+
+  GITIGNORE_FILE           = ".gitignore"
+  GITATTRIBUTES_FILE       = ".gitattributes"
 
   # these numbers/names align with public docker image names
   RUBIES = {
@@ -55,10 +60,32 @@ class Concourse
   def rake_init
     FileUtils.mkdir_p File.join(directory, "tasks")
     FileUtils.touch pipeline_erb_filename
-    File.open ".gitignore", "a" do |f|
-      f.puts private_var_file
-      f.puts pipeline_filename
+    ensure_in_gitignore private_var_file
+    ensure_in_gitignore pipeline_filename
+  end
+
+  def ensure_in_gitignore file_glob
+    if File.exist?(GITIGNORE_FILE)
+      if File.read(GITIGNORE_FILE).split("\n").include?(file_glob)
+        note "found '#{file_glob}' already present in #{GITIGNORE_FILE}"
+        return
+      end
     end
+    note "adding '#{file_glob}' to #{GITIGNORE_FILE}"
+    File.open(GITIGNORE_FILE, "a") { |f| f.puts file_glob }
+  end
+
+  def sh command
+    running "(in #{Dir.pwd}) #{command}"
+    super command, verbose: false
+  end
+
+  def running message
+    print bold, red, "RUNNING: ", reset, message, "\n"
+  end
+
+  def note message
+    print bold, green, "NOTE: ", reset, message, "\n"
   end
 
   def create_tasks!
