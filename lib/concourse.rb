@@ -1,5 +1,6 @@
 require "concourse/version"
 require "concourse/util"
+require "concourse/pipeline"
 require "yaml"
 require "tempfile"
 
@@ -19,7 +20,7 @@ class Concourse
 
   attr_reader :project_name
   attr_reader :directory
-  attr_reader :pipeline_filename, :pipeline_erb_filename
+  attr_reader :pipeline_filename, :pipeline_erb_filename, :pipelines
   attr_reader :fly_target
   attr_reader :secrets_filename
 
@@ -50,11 +51,12 @@ class Concourse
 
     @directory = options[:directory] || DEFAULT_DIRECTORY
     @fly_target = options[:fly_target] || "default"
-    base_pipeline_erb_filename = options[:pipeline_erb_filename] || "#{project_name}.yml"
-    base_secrets_filename = options[:secrets_filename] || "private.yml"
 
-    @pipeline_filename = File.join(@directory, "#{base_pipeline_erb_filename}.generated")
-    @pipeline_erb_filename = File.join(@directory, base_pipeline_erb_filename)
+    pipeline = Concourse::Pipeline.new(@directory, options[:pipeline_erb_filename] || "#{project_name}.yml")
+    @pipeline_filename = pipeline.filename
+    @pipeline_erb_filename = pipeline.erb_filename
+
+    base_secrets_filename = options[:secrets_filename] || "private.yml"
     @secrets_filename = File.join(@directory, base_secrets_filename)
   end
 
