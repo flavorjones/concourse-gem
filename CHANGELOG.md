@@ -1,6 +1,6 @@
 # concourse-gem changelog
 
-## unreleased
+## 0.22.0 / 2019-01-18
 
 ### Breaking changes
 
