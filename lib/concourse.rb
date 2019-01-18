@@ -46,11 +46,13 @@ class Concourse
 
   def initialize project_name, args={}
     @project_name = project_name
+
     @directory = args[:directory] || DEFAULT_DIRECTORY
-    @pipeline_filename = File.join(@directory, "#{project_name}.final.yml")
+    @fly_target = args[:fly_target] || "default"
+
+    @pipeline_filename = File.join(@directory, "#{project_name}.yml.generated")
     @pipeline_erb_filename = File.join(@directory, "#{project_name}.yml")
     @private_var_file = File.join(@directory, "private.yml")
-    @fly_target = args[:fly_target] || "default"
   end
 
   def erbify document_string, *args

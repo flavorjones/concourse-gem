@@ -10,7 +10,7 @@ RSpec.describe Concourse do
       it "uses project name to name the pipeline file" do
         concourse = Concourse.new("myproject")
         expect(concourse.project_name).to eq "myproject"
-        expect(concourse.pipeline_filename).to eq "concourse/myproject.final.yml"
+        expect(concourse.pipeline_filename).to eq "concourse/myproject.yml.generated"
         expect(concourse.pipeline_erb_filename).to eq "concourse/myproject.yml"
       end
     end
@@ -68,11 +68,13 @@ RSpec.describe Concourse do
 
       it "adds sensitive files to .gitignore" do
         in_tmp_dir do
-          concourse.rake_init
+          shush_stdout do
+            concourse.rake_init
+          end
 
           gitignore = File.read(".gitignore").split("\n")
-          expect(gitignore.grep("ci/myproject.final.yml")).to be_truthy
-          expect(gitignore.grep("ci/private.yml")).to be_truthy
+          expect(gitignore).to include("ci/myproject.yml.generated")
+          expect(gitignore).to include("ci/private.yml")
         end
       end
     end
