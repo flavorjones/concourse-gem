@@ -34,6 +34,17 @@ RSpec.describe Concourse do
       end
     end
 
+    describe "#pipelines" do
+      context "by default" do
+        it "has one pipeline named after the project name" do
+          concourse = Concourse.new("myproject")
+          expect(concourse.pipelines.length).to eq(1)
+          expect(concourse.pipelines.first.erb_filename).to eq("concourse/myproject.yml")
+          expect(concourse.pipelines.first.filename).to eq("concourse/myproject.yml.generated")
+        end
+      end
+    end
+
     describe "#pipeline_erb_filename" do
       it "by default uses project name to name the pipeline file" do
         concourse = Concourse.new("myproject")

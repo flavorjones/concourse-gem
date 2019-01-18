@@ -55,6 +55,7 @@ class Concourse
     pipeline = Concourse::Pipeline.new(@directory, options[:pipeline_erb_filename] || "#{project_name}.yml")
     @pipeline_filename = pipeline.filename
     @pipeline_erb_filename = pipeline.erb_filename
+    @pipelines = [pipeline]
 
     base_secrets_filename = options[:secrets_filename] || "private.yml"
     @secrets_filename = File.join(@directory, base_secrets_filename)
