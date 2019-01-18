@@ -21,12 +21,12 @@ This will create a set of rake tasks for you.
 rake concourse:init
 ```
 
-The `concourse:init` task will create a subdirectory named `concourse`, and create a Concourse pipeline file named `myproject.yml`, which will be interpreted as an ERB template. It will also ensure that files with sensitive data (`concourse/private.yml` and `concourse/myproject.final.yml`) are in `.gitignore`.
+The `concourse:init` task will create a subdirectory named `concourse`, and create a Concourse pipeline file named `<myproject>.yml`, which will be interpreted as an ERB template. It will also ensure that files with sensitive data (`concourse/private.yml` and `concourse/myproject.yml.generated`) are in `.gitignore`.
 
 
 ### Concourse subdirectory name
 
-You can choose a directory name other than `concourse`:
+You can choose a directory name other than the default `concourse`:
 
 ``` ruby
 Concourse.new("myproject", directory: "ci").create_tasks!
@@ -48,9 +48,27 @@ Concourse.new("myproject", fly_target: "myci").create_tasks! # `fly -t myci <com
 ```
 
 
+### Pipeline file
+
+By default the pipeline file will be named `<myproject>.yml`, but can be set to something else:
+
+``` ruby
+Concourse.new("myproject", pipeline_erb_filename: "pipeline.yml").create_tasks!
+```
+
+Note that the generated, final pipeline file is always named `<pipeline_erb_filename>.generated`.
+
+
+
 ### Keeping credentials private
 
-If the file `concourse/private.yml` exists, it will be passed to the `fly` commandline with the `-l` option to fill in template values.
+You can use a separate file to keep your pipeline variables secure. By default, `concourse/private.yml` will be used. You can specify a different filename:
+
+``` ruby
+Concourse.new("myproject", secrets_filename: "secrets.yml").create_tasks!
+```
+
+If the secrets file exists, it will be passed to the `fly` commandline with the `-l` option to fill in template values.
 
 For example, I might have a concourse config that looks like this:
 

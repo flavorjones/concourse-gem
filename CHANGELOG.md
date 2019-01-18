@@ -2,8 +2,17 @@
 
 ## unreleased
 
+### Breaking changes
+
+* The name of the generated, final pipeline file is now `<pipeline_erb_filename>.generated`.
+
+
+### Features
+
 * Introduce rake task `concourse:prune-stalled-workers`
-* `Concourse.new` now takes an optional `:fly_target` param to avoid passing this to each task. [#2] (Thanks, @ebmeierj!)
+* `Concourse.new` now takes an optional `:fly_target` named param to avoid passing this to each task. [#2] (Thanks, @ebmeierj!)
+* `Concourse.new` now takes an optional `:pipeline_erb_filename` named param to set the name of the pipeline file used. [#1] (Thanks, @ebmeierj!)
+* `Concourse.new` now takes an optional `:secrets_filename` named param to set the name of the private variable file used. [#1] (Thanks, @ebmeierj!)
 
 
 ## 0.21.0 / 2018-12-26

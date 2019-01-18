@@ -7,11 +7,8 @@ RSpec.describe Concourse do
         expect { Concourse.new }.to raise_exception(ArgumentError)
       end
 
-      it "uses project name to name the pipeline file" do
-        concourse = Concourse.new("myproject")
-        expect(concourse.project_name).to eq "myproject"
-        expect(concourse.pipeline_filename).to eq "concourse/myproject.yml.generated"
-        expect(concourse.pipeline_erb_filename).to eq "concourse/myproject.yml"
+      it "is saved" do
+        expect(Concourse.new("myproject").project_name).to eq "myproject"
       end
     end
 
@@ -21,17 +18,43 @@ RSpec.describe Concourse do
       end
 
       it "optionally accepts a directory name" do
-        expect(Concourse.new("myproject", directory: "ci").directory).to eq "ci"
+        concourse = Concourse.new("myproject", directory: "ci")
+        expect(concourse.directory).to eq("ci")
+        expect(File.dirname(concourse.pipeline_erb_filename)).to eq("ci")
       end
     end
 
-    describe "fly_target" do
+    describe "#fly_target" do
       it "defaults to 'default'" do
         expect(Concourse.new("myproject").fly_target).to eq "default"
       end
 
       it "optionally accepts a fly_target name" do
         expect(Concourse.new("myproject", fly_target: "myci").fly_target).to eq "myci"
+      end
+    end
+
+    describe "#pipeline_erb_filename" do
+      it "by default uses project name to name the pipeline file" do
+        concourse = Concourse.new("myproject")
+        expect(concourse.pipeline_erb_filename).to eq "concourse/myproject.yml"
+        expect(concourse.pipeline_filename).to eq "concourse/myproject.yml.generated"
+      end
+
+      it "is used for both pipeline file names" do
+        concourse = Concourse.new("myproject", pipeline_erb_filename: "foo.yml")
+        expect(concourse.pipeline_erb_filename).to eq("concourse/foo.yml")
+        expect(concourse.pipeline_filename).to eq("concourse/foo.yml.generated")
+      end
+    end
+
+    describe "#secrets_filename" do
+      it "is `private.yml` by default" do
+        expect(Concourse.new("myproject").secrets_filename).to eq("concourse/private.yml")
+      end
+
+      it "can be set" do
+        expect(Concourse.new("myproject", secrets_filename: "secrets.yml").secrets_filename).to eq("concourse/secrets.yml")
       end
     end
   end

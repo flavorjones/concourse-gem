@@ -20,7 +20,11 @@ class Concourse
 
   DEFAULT_DIRECTORY = "concourse"
 
-  attr_reader :project_name, :pipeline_filename, :pipeline_erb_filename, :directory, :private_var_file, :fly_target
+  attr_reader :project_name
+  attr_reader :directory
+  attr_reader :pipeline_filename, :pipeline_erb_filename
+  attr_reader :fly_target
+  attr_reader :secrets_filename
 
   def self.url_for fly_target
     matching_line = `fly targets`.split("\n").grep(/^#{fly_target}/).first
@@ -44,15 +48,17 @@ class Concourse
     RUBIES[:mri].select { |r| r =~ /rc/ }
   end
 
-  def initialize project_name, args={}
+  def initialize project_name, options={}
     @project_name = project_name
 
-    @directory = args[:directory] || DEFAULT_DIRECTORY
-    @fly_target = args[:fly_target] || "default"
+    @directory = options[:directory] || DEFAULT_DIRECTORY
+    @fly_target = options[:fly_target] || "default"
+    base_pipeline_erb_filename = options[:pipeline_erb_filename] || "#{project_name}.yml"
+    base_secrets_filename = options[:secrets_filename] || "private.yml"
 
-    @pipeline_filename = File.join(@directory, "#{project_name}.yml.generated")
-    @pipeline_erb_filename = File.join(@directory, "#{project_name}.yml")
-    @private_var_file = File.join(@directory, "private.yml")
+    @pipeline_filename = File.join(@directory, "#{base_pipeline_erb_filename}.generated")
+    @pipeline_erb_filename = File.join(@directory, base_pipeline_erb_filename)
+    @secrets_filename = File.join(@directory, base_secrets_filename)
   end
 
   def erbify document_string, *args
@@ -62,7 +68,7 @@ class Concourse
   def rake_init
     FileUtils.mkdir_p File.join(directory, "tasks")
     FileUtils.touch pipeline_erb_filename
-    ensure_in_gitignore private_var_file
+    ensure_in_gitignore secrets_filename
     ensure_in_gitignore pipeline_filename
   end
 
@@ -127,9 +133,9 @@ class Concourse
           "-p '#{project_name}'",
           "-c '#{pipeline_filename}'",
         ]
-        if File.exist? private_var_file
-          puts "using #{private_var_file} to resolve template vars"
-          options << "-l '#{private_var_file}'"
+        if File.exist? secrets_filename
+          note "using #{secrets_filename} to resolve template vars"
+          options << "-l '#{secrets_filename}'"
         end
         sh "fly -t #{fly_target} set-pipeline #{options.join(" ")}"
       end
@@ -157,7 +163,7 @@ class Concourse
           tasks << "#{job["name"]}/#{task["task"]}"
         end
 
-        puts "Available Concourse tasks for #{project_name} are:"
+        note "Available Concourse tasks for #{project_name} are:"
         tasks.sort.each { |task| puts " * #{task}" }
       end
 
