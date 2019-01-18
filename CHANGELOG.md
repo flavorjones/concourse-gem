@@ -3,6 +3,7 @@
 ## unreleased
 
 * Introduce rake task `concourse:prune-stalled-workers`
+* `Concourse.new` now takes an optional `:fly_target` param to avoid passing this to each task. [#2] (Thanks, @ebmeierj!)
 
 
 ## 0.21.0 / 2018-12-26
