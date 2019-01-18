@@ -12,7 +12,7 @@ In your Rakefile,
 ``` ruby
 require 'concourse'
 
-Concourse.new("myproject").create_tasks!
+Concourse.new("myproject", fly_target: "myci").create_tasks!
 ```
 
 This will create a set of rake tasks for you.
@@ -30,6 +30,21 @@ You can choose a directory name other than `concourse`:
 
 ``` ruby
 Concourse.new("myproject", directory: "ci").create_tasks!
+```
+
+
+### Concourse `fly` target name
+
+If the initializer is given no additional parameters, your fly target is assumed to be named "default":
+
+``` ruby
+Concourse.new("myproject").create_tasks! # `fly -t default <command>`
+```
+
+But this is likely an inappropriate default, and so you can specify your target name:
+
+``` ruby
+Concourse.new("myproject", fly_target: "myci").create_tasks! # `fly -t myci <command>`
 ```
 
 
@@ -90,54 +105,50 @@ jobs:
 Note that the `windows` rubies are not Docker images, since Concourse's Houdini backend doesn't use Docker. Instead, these are implicitly referring to the supported ruby versions installed by the BOSH release at https://github.com/flavorjones/windows-ruby-dev-tools-release
 
 
-### `fly_target`
-
-Any rake task that needs to interact with your Concourse ATC requires a `fly_target` argument. The value should be a fly target `name`, and it's assumed that you're already logged in to that target.
-
-
 ### Managing your Concourse pipeline
 
 Tasks to manage a local pipeline file, generated from an ERB template:
 
 ```
-rake concourse:clean                # remove generate pipeline file
-rake concourse:generate             # generate and validate the pipeline file for myproject
+rake concourse:clean    # remove generate pipeline file
+rake concourse:generate # generate and validate the pipeline file for myproject
 ```
 
 A task to update your pipeline configuration:
 
 ```
-rake concourse:set[fly_target]      # upload the pipeline file for myproject
+rake concourse:set      # upload the pipeline file for myproject
 ```
 
 Tasks to publicly expose or hide your pipeline:
 
 ```
-rake concourse:expose[fly_target]   # expose the myproject pipeline
-rake concourse:hide[fly_target]     # hide the myproject pipeline
+rake concourse:expose   # expose the myproject pipeline
+rake concourse:hide     # hide the myproject pipeline
 ```
 
 Tasks to pause and unpause your pipeline:
 
 ```
-rake concourse:pause[fly_target]    # pause the myproject pipeline
-rake concourse:unpause[fly_target]  # unpause the myproject pipeline
+rake concourse:pause    # pause the myproject pipeline
+rake concourse:unpause  # unpause the myproject pipeline
 ```
 
 And, should you ever need to [nuke the site from orbit][ripley], a task to destroy your pipeline:
 
 ```
-rake concourse:destroy[fly_target]  # destroy the myproject pipeline
+rake concourse:destroy  # destroy the myproject pipeline
 ```
 
 
   [ripley]: https://www.youtube.com/watch?v=aCbfMkh940Q
 
+
 ### Running tasks with `fly execute`
 
 ```
-rake concourse:tasks                                       # list all the available tasks from the nokogiri pipeline
-rake concourse:task[fly_target,job_task,fly_execute_args]  # fly execute the specified task
+rake concourse:tasks                            # list all the available tasks from the nokogiri pipeline
+rake concourse:task[job_task,fly_execute_args]  # fly execute the specified task
 ```
 
 where:
@@ -149,21 +160,17 @@ where:
 ### Aborting running builds
 
 ```
-rake concourse:abort-builds[fly_target]  # abort all running builds for this pipeline
+rake concourse:abort-builds  # abort all running builds for this pipeline
 ```
 
 
-### Generating a sweet set of markdown badges
+### Pruning stalled concourse workers
 
-Would you like a markdown table of your jobs' passing/failing badges? Of course you would.
+Especially useful if you're deploying via BOSH, which often results in stalled workers;
 
 ```
-rake concourse:badges[fly_target,team_name]   # display a list of jobs and badge urls
+rake concourse:prune-stalled-workers  # prune any stalled workers
 ```
-
-where:
-
-* _optional_: `team_name` is the name of the pipeline's Concourse Team. Defaults to `main`.
 
 
 ## Installation
