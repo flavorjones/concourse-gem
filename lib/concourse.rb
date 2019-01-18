@@ -20,7 +20,7 @@ class Concourse
 
   attr_reader :project_name
   attr_reader :directory
-  attr_reader :pipeline_filename, :pipeline_erb_filename, :pipelines
+  attr_reader :pipelines
   attr_reader :fly_target
   attr_reader :secrets_filename
 
@@ -53,8 +53,6 @@ class Concourse
     @fly_target = options[:fly_target] || "default"
 
     pipeline = Concourse::Pipeline.new(@project_name, @directory, options[:pipeline_erb_filename] || "#{project_name}.yml")
-    @pipeline_filename = pipeline.filename
-    @pipeline_erb_filename = pipeline.erb_filename
     @pipelines = [pipeline]
 
     base_secrets_filename = options[:secrets_filename] || "private.yml"
