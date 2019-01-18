@@ -52,7 +52,7 @@ class Concourse
     @directory = options[:directory] || DEFAULT_DIRECTORY
     @fly_target = options[:fly_target] || "default"
 
-    pipeline = Concourse::Pipeline.new(@directory, options[:pipeline_erb_filename] || "#{project_name}.yml")
+    pipeline = Concourse::Pipeline.new(@project_name, @directory, options[:pipeline_erb_filename] || "#{project_name}.yml")
     @pipeline_filename = pipeline.filename
     @pipeline_erb_filename = pipeline.erb_filename
     @pipelines = [pipeline]
@@ -63,9 +63,11 @@ class Concourse
 
   def rake_init
     FileUtils.mkdir_p File.join(directory, "tasks")
-    FileUtils.touch pipeline_erb_filename
+    pipelines.each do |pipeline|
+      FileUtils.touch pipeline.erb_filename
+      ensure_in_gitignore pipeline.filename
+    end
     ensure_in_gitignore secrets_filename
-    ensure_in_gitignore pipeline_filename
   end
 
   def create_tasks!
@@ -73,11 +75,13 @@ class Concourse
       mkdir_p directory
     end
 
-    unless File.exist? pipeline_erb_filename
-      warn "WARNING: concourse template #{pipeline_erb_filename.inspect} does not exist, run `rake concourse:init`"
-    end
+    pipelines.each do |pipeline|
+      CLOBBER.include pipeline.filename if defined?(CLOBBER)
 
-    CLOBBER.include pipeline_filename if defined?(CLOBBER)
+      unless File.exist? pipeline.erb_filename
+        warn "WARNING: concourse template #{pipeline.erb_filename.inspect} does not exist, run `rake concourse:init`"
+      end
+    end
 
     namespace :concourse do
       #
@@ -91,48 +95,58 @@ class Concourse
       #
       #  pipeline commands
       #
-      desc "generate and validate the pipeline file for #{project_name}"
+      desc "generate and validate the pipeline files for #{project_name}"
       task "generate" do |t|
-        File.open pipeline_filename, "w" do |f|
-          f.write erbify(File.read(pipeline_erb_filename))
+        pipelines.each do |pipeline|
+          File.open pipeline.filename, "w" do |f|
+            f.write erbify(File.read(pipeline.erb_filename))
+          end
+          sh "fly validate-pipeline -c #{pipeline.filename}"
         end
-        sh "fly validate-pipeline -c #{pipeline_filename}"
       end
 
-      desc "upload the pipeline file for #{project_name}"
+      desc "upload the pipeline files for #{project_name}"
       task "set" => ["generate"] do |t, args|
-        options = [
-          "-p '#{project_name}'",
-          "-c '#{pipeline_filename}'",
-        ]
-        if File.exist? secrets_filename
-          note "using #{secrets_filename} to resolve template vars"
-          options << "-l '#{secrets_filename}'"
+        pipelines.each do |pipeline|
+          options = [
+            "-p '#{pipeline.name}'",
+            "-c '#{pipeline.filename}'",
+          ]
+          if File.exist? secrets_filename
+            note "using #{secrets_filename} to resolve template vars in #{pipeline.filename}"
+            options << "-l '#{secrets_filename}'"
+          end
+          sh "fly -t #{fly_target} set-pipeline #{options.join(" ")}"
         end
-        sh "fly -t #{fly_target} set-pipeline #{options.join(" ")}"
       end
 
       %w[expose hide pause unpause destroy].each do |command|
-        desc "#{command} the #{project_name} pipeline"
+        desc "#{command} the #{project_name} pipelines"
         task command do |t, args|
-          sh "fly -t #{fly_target} #{command}-pipeline -p #{project_name}"
+          pipelines.each do |pipeline|
+            sh "fly -t #{fly_target} #{command}-pipeline -p #{pipeline.name}"
+          end
         end
       end
 
-      desc "remove generate pipeline file"
+      desc "remove generate pipeline files"
       task "clean" do |t|
-        rm_f pipeline_filename
+        pipelines.each do |pipeline|
+          rm_f pipeline.filename
+        end
       end
 
       #
       #  task commands
       #
-      desc "list all the available tasks from the #{project_name} pipeline"
+      desc "list all the available tasks from the #{project_name} pipelines"
       task "tasks" => "generate" do
         tasks = []
 
-        each_task do |job, task|
-          tasks << "#{job["name"]}/#{task["task"]}"
+        pipelines.each do |pipeline|
+          each_task(pipeline) do |job, task|
+            tasks << "#{job["name"]}/#{task["task"]}"
+          end
         end
 
         note "Available Concourse tasks for #{project_name} are:"
@@ -146,7 +160,7 @@ class Concourse
           raise "ERROR: must specify a task name, like `rake #{t.name}[target,taskname]`"
         end
 
-        concourse_task = find_task job_task
+        concourse_task = find_task(job_task)
         raise "ERROR: could not find task `#{job_task}`" unless concourse_task
 
         fly_execute_args = args[:fly_execute_args] || Concourse.default_execute_args(concourse_task)
@@ -164,7 +178,7 @@ class Concourse
       #
       #  builds commands
       #
-      desc "abort all running builds for this pipeline"
+      desc "abort all running builds for this concourse team"
       task "abort-builds" do |t, args|
         `fly -t #{fly_target} builds`.each_line do |line|
           pipeline_job, build_id, status = *line.split(/\s+/)[1,3]

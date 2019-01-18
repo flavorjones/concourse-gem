@@ -35,16 +35,16 @@ class Concourse
       ERB.new(document_string, nil, "%-").result(binding)
     end
 
-    def each_job
-      pipeline = YAML.load_file(pipeline_filename)
+    def each_job pipeline
+      pdata = YAML.load_file(pipeline.filename)
 
-      pipeline["jobs"].each do |job|
+      pdata["jobs"].each do |job|
         yield job
       end
     end
 
-    def each_task
-      each_job do |job|
+    def each_task pipeline
+      each_job(pipeline) do |job|
         job["plan"].each do |task|
           yield job, task if task["task"]
         end
@@ -53,8 +53,10 @@ class Concourse
 
     def find_task job_task
       job_name, task_name = *job_task.split("/")
-      each_task do |job, task|
-        return task if task["task"] == task_name && job["name"] == job_name
+      pipelines.each do |pipeline|
+        each_task(pipeline) do |job, task|
+          return task if task["task"] == task_name && job["name"] == job_name
+        end
       end
       nil
     end

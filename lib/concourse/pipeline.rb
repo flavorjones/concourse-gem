@@ -1,8 +1,9 @@
 class Concourse
   class Pipeline
-    attr_reader :directory, :erb_filename, :filename
+    attr_reader :name, :directory, :erb_filename, :filename
 
-    def initialize directory, erb_filename
+    def initialize name, directory, erb_filename
+      @name = name
       @directory = directory
       @erb_filename = File.join(@directory, erb_filename)
       @filename = File.join(@directory, erb_filename + ".generated")

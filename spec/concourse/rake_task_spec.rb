@@ -39,6 +39,7 @@ RSpec.describe Concourse do
         it "has one pipeline named after the project name" do
           concourse = Concourse.new("myproject")
           expect(concourse.pipelines.length).to eq(1)
+          expect(concourse.pipelines.first.name).to eq("myproject")
           expect(concourse.pipelines.first.erb_filename).to eq("concourse/myproject.yml")
           expect(concourse.pipelines.first.filename).to eq("concourse/myproject.yml.generated")
         end
