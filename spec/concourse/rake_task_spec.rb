@@ -24,6 +24,16 @@ RSpec.describe Concourse do
         expect(Concourse.new("myproject", directory: "ci").directory).to eq "ci"
       end
     end
+
+    describe "fly_target" do
+      it "defaults to 'default'" do
+        expect(Concourse.new("myproject").fly_target).to eq "default"
+      end
+
+      it "optionally accepts a fly_target name" do
+        expect(Concourse.new("myproject", fly_target: "myci").fly_target).to eq "myci"
+      end
+    end
   end
 
   def in_tmp_dir &block

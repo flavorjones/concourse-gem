@@ -45,7 +45,7 @@ class Concourse
     @pipeline_filename = File.join(@directory, "#{project_name}.final.yml")
     @pipeline_erb_filename = File.join(@directory, "#{project_name}.yml")
     @private_var_file = File.join(@directory, "private.yml")
-    @fly_target = args[:fly_target] || :default
+    @fly_target = args[:fly_target] || "default"
   end
 
   def erbify document_string, *args
