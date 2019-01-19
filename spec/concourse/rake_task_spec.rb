@@ -13,6 +13,25 @@ describe Concourse do
     end
   end
 
+  describe ".new with a block" do
+    it "doesn't create a default pipeline" do
+      concourse = Concourse.new("myproject") do
+        # do nothing
+      end
+
+      expect(concourse.pipelines).to be_empty
+    end
+
+    it "it yields self" do
+      actual_result = nil
+      concourse = Concourse.new("myproject") do |object|
+        actual_result = object
+      end
+
+      expect(concourse).to eq(actual_result)
+    end
+  end
+
   describe "#directory" do
     it "defaults to 'concourse'" do
       expect(Concourse.new("myproject").directory).to eq "concourse"
@@ -53,6 +72,31 @@ describe Concourse do
 
     it "can be set" do
       expect(Concourse.new("myproject", secrets_filename: "secrets.yml").secrets_filename).to eq("concourse/secrets.yml")
+    end
+  end
+
+  describe "#add_pipeline" do
+    it "requires name and filename arguments" do
+      expect { Concourse.new("myproject").add_pipeline("a") }.to raise_exception(ArgumentError)
+    end
+
+    it "creates a Pipeline and adds it to the #pipelines array" do
+      concourse = Concourse.new("myproject") do |c|
+        c.add_pipeline "foo", "fizzle.yml"
+        c.add_pipeline "bar", "fozzle.yml"
+      end
+
+      expect(concourse.pipelines.length).to eq(2)
+      concourse.pipelines.first.tap do |pipeline|
+        expect(pipeline.name).to eq("foo")
+        expect(pipeline.directory).to eq(concourse.directory)
+        expect(pipeline.erb_filename). to eq("concourse/fizzle.yml")
+      end
+      concourse.pipelines.last.tap do |pipeline|
+        expect(pipeline.name).to eq("bar")
+        expect(pipeline.directory).to eq(concourse.directory)
+        expect(pipeline.erb_filename). to eq("concourse/fozzle.yml")
+      end
     end
   end
 

@@ -46,17 +46,26 @@ class Concourse
     RUBIES[:mri].select { |r| r =~ /rc/ }
   end
 
-  def initialize project_name, options={}
+  def initialize project_name, options={}, &block
     @project_name = project_name
 
     @directory = options[:directory] || DEFAULT_DIRECTORY
     @fly_target = options[:fly_target] || "default"
 
-    pipeline = Concourse::Pipeline.new(@project_name, @directory, options[:pipeline_erb_filename] || "#{project_name}.yml")
-    @pipelines = [pipeline]
-
     base_secrets_filename = options[:secrets_filename] || "private.yml"
     @secrets_filename = File.join(@directory, base_secrets_filename)
+
+    @pipelines = []
+    if block
+      block.call(self)
+      create_tasks!
+    else
+      add_pipeline(@project_name, (options[:pipeline_erb_filename] || "#{project_name}.yml"))
+    end
+  end
+
+  def add_pipeline name, erb_filename
+    @pipelines << Concourse::Pipeline.new(name, @directory, erb_filename)
   end
 
   def rake_init
@@ -127,7 +136,7 @@ class Concourse
         end
       end
 
-      desc "remove generate pipeline files"
+      desc "remove generated pipeline files"
       task "clean" do |t|
         pipelines.each do |pipeline|
           rm_f pipeline.filename
