@@ -10,3 +10,7 @@
 
 # rspec failure tracking
 .rspec_status
+
+# npm
+node_modules
+package-lock.json
