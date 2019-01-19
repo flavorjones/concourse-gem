@@ -68,6 +68,10 @@ class Concourse
     @pipelines << Concourse::Pipeline.new(name, @directory, erb_filename)
   end
 
+  def pipeline_subcommands command
+    pipelines.collect { |p| "#{command}:#{p.name}" }
+  end
+
   def rake_init
     FileUtils.mkdir_p File.join(directory, "tasks")
     pipelines.each do |pipeline|
@@ -102,9 +106,12 @@ class Concourse
       #
       #  pipeline commands
       #
-      desc "generate and validate the pipeline files for #{project_name}"
-      task "generate" do |t|
-        pipelines.each do |pipeline|
+      desc "generate and validate all pipeline files"
+      task "generate" => pipeline_subcommands("generate")
+
+      pipelines.each do |pipeline|
+        desc "generate and validate the #{pipeline.name} pipeline file"
+        task "generate:#{pipeline.name}" do
           File.open pipeline.filename, "w" do |f|
             f.write erbify(File.read(pipeline.erb_filename))
           end
@@ -112,9 +119,12 @@ class Concourse
         end
       end
 
-      desc "upload the pipeline files for #{project_name}"
-      task "set" => ["generate"] do |t, args|
-        pipelines.each do |pipeline|
+      desc "upload all pipeline files"
+      task "set" => pipeline_subcommands("set")
+
+      pipelines.each do |pipeline|
+        desc "upload the #{pipeline.name} pipeline file"
+        task "set:#{pipeline.name}" => "generate:#{pipeline.name}" do
           options = [
             "-p '#{pipeline.name}'",
             "-c '#{pipeline.filename}'",
@@ -128,16 +138,19 @@ class Concourse
       end
 
       %w[expose hide pause unpause destroy].each do |command|
-        desc "#{command} the #{project_name} pipelines"
-        task command do |t, args|
-          pipelines.each do |pipeline|
+        desc "#{command} all pipelines"
+        task command => pipeline_subcommands(command)
+
+        pipelines.each do |pipeline|
+          desc "#{command} the #{pipeline.name} pipeline"
+          task "#{command}:#{pipeline.name}" do
             sh "fly -t #{fly_target} #{command}-pipeline -p #{pipeline.name}"
           end
         end
       end
 
       desc "remove generated pipeline files"
-      task "clean" do |t|
+      task "clean" do
         pipelines.each do |pipeline|
           rm_f pipeline.filename
         end
@@ -199,7 +212,7 @@ class Concourse
       #  worker commands
       #
       desc "prune any stalled workers"
-      task "prune-stalled-workers" do |t, args|
+      task "prune-stalled-workers" do
         `fly -t #{fly_target} workers | fgrep stalled`.each_line do |line|
           worker_id = line.split.first
           system("fly -t #{fly_target} prune-worker -w #{worker_id}")
