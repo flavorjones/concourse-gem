@@ -211,33 +211,33 @@ Tasks to manage a local pipeline file, generated from an ERB template:
 
 ```
 rake concourse:clean     # remove generated pipeline files
-rake concourse:generate  # generate and validate the pipeline files for myproject
+rake concourse:generate  # generate and validate all pipeline files
 ```
 
 A task to update your pipeline configuration:
 
 ```
-rake concourse:set       # upload the pipeline files for myproject
+rake concourse:set       # upload all pipeline files
 ```
 
 Tasks to publicly expose or hide your pipeline:
 
 ```
-rake concourse:expose    # expose the myproject pipelines
-rake concourse:hide      # hide the myproject pipelines
+rake concourse:expose    # expose all pipelines
+rake concourse:hide      # hide all pipelines
 ```
 
 Tasks to pause and unpause your pipeline:
 
 ```
-rake concourse:pause     # pause the myproject pipelines
-rake concourse:unpause   # unpause the myproject pipelines
+rake concourse:pause     # pause all pipelines
+rake concourse:unpause   # unpause all pipelines
 ```
 
 And, should you ever need to [nuke the site from orbit][ripley], a task to destroy your pipeline:
 
 ```
-rake concourse:destroy   # destroy the myproject pipelines
+rake concourse:destroy   # destroy all pipelines
 ```
 
   [ripley]: https://www.youtube.com/watch?v=aCbfMkh940Q
@@ -248,7 +248,7 @@ rake concourse:destroy   # destroy the myproject pipelines
 You can see a list of all the tasks defined in your pipelines:
 
 ```
-rake concourse:tasks  # list all the available tasks from the myproject pipelines
+rake concourse:tasks  # list all available tasks from all pipelines
 ```
 
 You'll see output suitable for the `concourse:task` rake task, formatted as `job-name/task-name`, looking something like:

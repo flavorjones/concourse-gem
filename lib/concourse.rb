@@ -159,7 +159,7 @@ class Concourse
       #
       #  task commands
       #
-      desc "list all the available tasks from the #{project_name} pipelines"
+      desc "list all available tasks from all pipelines"
       task "tasks" => "generate" do
         tasks = []
 
