@@ -1,5 +1,12 @@
 # concourse-gem changelog
 
+## 0.23.0 / 2019-01-19
+
+### Features
+
+* Support for multiple pipelines.
+
+
 ## 0.22.0 / 2019-01-18
 
 ### Breaking changes
