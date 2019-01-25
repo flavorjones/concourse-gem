@@ -1,21 +1,6 @@
 require "spec_helper"
 
 describe "injected rake tasks" do
-  def in_tmp_dir &block
-    Dir.mktmpdir do |dir|
-      Dir.chdir(dir) do
-        yield
-      end
-    end
-  end
-
-  def shush_stdout &block
-    old_stdout = $stdout
-    $stdout = StringIO.new
-    yield
-    $stdout = old_stdout
-  end
-
   describe "rake tasks" do
     let(:concourse) { Concourse.new "myproject", directory: "ci" }
 
