@@ -1,0 +1,5 @@
+% require "a-local-file" # sets $foo
+one: 1
+# a local yaml file, which emits content using $foo
+<%= erbify_file "a-nested-erb.yml" -%>
+two: 2

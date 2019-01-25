@@ -81,6 +81,13 @@ class Concourse
     ensure_in_gitignore secrets_filename
   end
 
+  def rake_pipeline_generate pipeline
+    File.open pipeline.filename, "w" do |f|
+      f.write erbify_file(pipeline.erb_filename, working_directory: directory)
+    end
+    sh "fly validate-pipeline -c #{pipeline.filename}"
+  end
+
   def create_tasks!
     unless Dir.exist? directory
       mkdir_p directory
@@ -112,10 +119,7 @@ class Concourse
       pipelines.each do |pipeline|
         desc "generate and validate the #{pipeline.name} pipeline file"
         task "generate:#{pipeline.name}" do
-          File.open pipeline.filename, "w" do |f|
-            f.write erbify(File.read(pipeline.erb_filename))
-          end
-          sh "fly validate-pipeline -c #{pipeline.filename}"
+          rake_pipeline_generate pipeline
         end
       end
 

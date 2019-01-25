@@ -20,7 +20,7 @@ class Concourse
 
     def sh command
       running "(in #{Dir.pwd}) #{command}"
-      super command, verbose: false
+      Rake.sh command, verbose: false
     end
 
     def running message
@@ -31,8 +31,17 @@ class Concourse
       print bold, green, "NOTE: ", reset, message, "\n"
     end
 
-    def erbify document_string, *args
-      ERB.new(document_string, nil, "%-").result(binding)
+    def erbify_file filename, working_directory: nil
+      raise "ERROR: erbify_file: could not find file `#{filename}`" unless File.exist?(filename)
+      template = File.read(filename)
+
+      if working_directory.nil?
+        working_directory = "." # so chdir is a no-op below
+      else
+        fqwd = File.expand_path(working_directory)
+        $LOAD_PATH << fqwd unless $LOAD_PATH.include?(fqwd) # so "require" can load relative paths
+      end
+      Dir.chdir(working_directory) { ERB.new(template, nil, "%-").result(binding) }
     end
 
     def each_job pipeline

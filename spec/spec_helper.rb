@@ -2,11 +2,18 @@ require "bundler/setup"
 require "concourse"
 
 module RspecExampleHelpers
-  def in_tmp_dir &block
+  def in_tmp_dir
     Dir.mktmpdir do |dir|
       Dir.chdir(dir) do
         yield
       end
+    end
+  end
+
+  def in_assets_dir dirname
+    target = File.join("spec", "assets", dirname)
+    Dir.chdir(target) do
+      yield
     end
   end
 

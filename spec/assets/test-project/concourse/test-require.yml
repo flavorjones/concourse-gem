@@ -1,0 +1,4 @@
+% require "digest" # file from stdlib
+% require "a-local-file" # file from local directory
+digest: <%= Digest::SHA256.hexdigest('foo') %>
+result: "The file foo.rb contains a global variable $foo whose value is <%= $foo %>"

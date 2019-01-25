@@ -1,5 +1,18 @@
 # concourse-gem changelog
 
+## 0.24.0 / 2019-01-24
+
+### Features
+
+* `$LOAD_PATH` includes the concourse directory, so that `require` will find relative filepaths.
+* `erbify_file` method may be called to recursively include yaml erb templates.
+
+
+### Breaking changes
+
+* `#erbify` has been removed in favor of `#erbify_file`
+
+
 ## 0.23.0 / 2019-01-19
 
 ### Features

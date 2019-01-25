@@ -16,7 +16,8 @@ If you're not familiar with Concourse CI, you can read up on it at https://conco
   * [Add to your `Rakefile`](#add-to-your-rakefile)
   * [Set up your Concourse pipeline](#set-up-your-concourse-pipeline)
 - [Concourse pipeline configuration](#concourse-pipeline-configuration)
-  * [ERB Templating and `RUBIES`](#erb-templating-and-rubies)
+  * [ERB Templating](#erb-templating)
+  * [`RUBIES`](#rubies)
   * [Secrets](#secrets)
   * [Multiple pipelines](#multiple-pipelines)
 - [Configuration](#configuration)
@@ -76,11 +77,30 @@ The `concourse:init` task will do a few different things for you:
 
 ## Concourse pipeline configuration
 
-### ERB Templating and `RUBIES`
+### ERB Templating
 
 Your Concourse pipeline configuration file, `<myproject>.yml` (or whatever you've configured with the `:pipeline_erb_filename` parameter), will be treated like an ERB template.
 
+The concourse directory is added the `$LOAD_PATH` and so local ruby files may be `require`d if you so desire. Also note that you can include other yaml erb snippets with the method `erbify_file`.
+
+An example using both of these features:
+
+``` yaml
+% require "common_prelude" #  will find "common_prelude.rb" in the concourse directory
+
+resources:
+<%= erbify_file "common_resources.yml" -%> #  will find this file in the concourse directory and recursively erbify it
+  - name: resource_unique_to_this_pipeline
+    type: git
+    source:
+      uri: <%= $common_prelude_defined_uri_prefix %>/username/projectname.git
+      branch: master
+```
+
 (If you're unfamiliar with ERB and how you can mix Ruby into the document, you can [read about it here](https://www.stuartellis.name/articles/erb/).)
+
+
+### `RUBIES`
 
 The ruby variable `RUBIES` is defined in the ERB binding during pipeline file generation. This variable looks like:
 
