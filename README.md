@@ -1,8 +1,8 @@
 # concourse (the rubygem)
 
-The `concourse` gem provides rake tasks to help you manage Concourse pipelines, jobs, and workers, to assist in running tasks with `fly execute`, and even run a local ephemeral deployment of Concourse on your development machine.
+The `concourse` gem provides rake tasks to help you manage Concourse CI pipelines, jobs, and workers, to assist in running tasks with `fly execute`, and even run a local ephemeral deployment of Concourse on your development machine.
 
-If you're not familiar with Concourse CI, you can read up on it at https://concourse.ci
+If you're not familiar with Concourse CI, you can read up on it at https://concourse-ci.org
 
 
 ## Contents
