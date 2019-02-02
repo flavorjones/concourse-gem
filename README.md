@@ -15,6 +15,7 @@ If you're not familiar with Concourse CI, you can read up on it at https://conco
   * [Install](#install)
   * [Add to your `Rakefile`](#add-to-your-rakefile)
   * [Set up your Concourse pipeline](#set-up-your-concourse-pipeline)
+- [Real-world Examples](#real-world-examples)
 - [Concourse pipeline configuration](#concourse-pipeline-configuration)
   * [ERB Templating](#erb-templating)
   * [`RUBIES`](#rubies)
@@ -78,6 +79,18 @@ The `concourse:init` task will do a few different things for you:
 3. ensure git will ignore your secrets file named `private.yml` (or whatever you've configured with the `:secrets_filename` parameter)
 
 
+## Real-world Examples
+
+It might be helpful to look at how other projects are using this gem. Here are a sample, ordered (approximately) from simplest to most complex:
+
+* [`jbarnette/hoe-debugging`](https://github.com/jbarnette/hoe-debugging) has [one pipeline](https://github.com/jbarnette/hoe-debugging/blob/master/concourse/hoe-debugging.yml) testing multiple versions of MRI
+* [`flavorjones/hoe-gemspec`](https://github.com/flavorjones/hoe-gemspec) has [one pipeline](https://github.com/flavorjones/hoe-gemspec/blob/master/concourse/hoe-gemspec.yml) testing multiple versions of MRI __and JRuby__
+* [`flavorjones/calendar-assistant`](https://github.com/flavorjones/calendar-assistant) has [one pipeline](https://github.com/flavorjones/calendar-assistant/blob/master/concourse/calendar-assistant.yml) that runs tests against `master` __and pull-requests__, and uses __secrets__
+* [`flavorjones/mini_portile`](https://github.com/flavorjones/mini_portile) has [one pipeline](https://github.com/flavorjones/mini_portile/blob/master/concourse/mini_portile.yml) running tests on both Linux __and Windows__.
+* [`flavorjones/chromedriver-helper`](https://github.com/flavorjones/chromedriver-helper) has __two pipelines__ testing [master](https://github.com/flavorjones/chromedriver-helper/blob/master/concourse/chromedriver-helper.yml) and [pull requests](https://github.com/flavorjones/chromedriver-helper/blob/master/concourse/chromedriver-helper-pr.yml) (see [Rakefile](https://github.com/flavorjones/chromedriver-helper/blob/master/Rakefile#L9-L12) config)
+* [`sparklemotion/nokogiri`](https://github.com/sparklemotion/nokogiri) has [multiple pipelines](https://github.com/sparklemotion/nokogiri/blob/master/concourse/nokogiri.yml) __using `require` and `erbify_file` to share common elements__.
+
+
 ## Concourse pipeline configuration
 
 ### ERB Templating
@@ -110,10 +123,10 @@ The ruby variable `RUBIES` is defined in the ERB binding during pipeline file ge
 ``` ruby
   # these numbers/names align with public docker image names
   RUBIES = {
-    mri:     %w[2.1 2.2 2.3 2.4], # docker repository: "ruby"
-    jruby:   %w[1.7 9.1],         # docker repository: "jruby"
-    rbx:     %w[latest],          # docker repository: "rubinius/docker"
-    windows: %w[2.3 2.4]          # windows-ruby-dev-tools-release
+    mri:     %w[2.3 2.4 2.5 2.6], # docker repository: "ruby"
+    jruby:   %w[9.1 9.2],     # docker repository: "jruby"
+    rbx:     %w[latest],      # docker repository: "rubinius/docker"
+    windows: %w[2.3 2.4 2.5 2.6]  # windows-ruby-dev-tools-release
   }
 ```
 
@@ -122,14 +135,18 @@ and allows you to write a pipeline like this to get coverage on all the supporte
 ``` yaml
 # myproject.yml
 jobs:
-  <% for ruby_version in RUBIES[:mri] %>
+% RUBIES[:mri].each do |ruby_version|
   - name: "ruby-<%= ruby_version %>"
     plan:
-      - get: git-master
-        trigger: true
+      ...
       - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "ruby", tag: "<%= ruby_version %>"}
     ...
-  <% end %>
+% end
 ```
 
 Note that the `windows` rubies are not Docker images, since Concourse's Houdini backend doesn't use Docker. Instead, these are implicitly referring to the supported ruby versions installed by the BOSH release at https://github.com/flavorjones/windows-ruby-dev-tools-release
