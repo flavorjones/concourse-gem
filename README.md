@@ -76,7 +76,6 @@ The `concourse:init` task will do a few different things for you:
 1. create a subdirectory named `concourse` (or whatever you've configured with the `:directory` parameter)
 2. create an empty Concourse pipeline file in that subdirectory named `<myproject>.yml` (or whatever you've configured with the `:pipeline_erb_filename` parameter)
 3. ensure git will ignore your secrets file named `private.yml` (or whatever you've configured with the `:secrets_filename` parameter)
-4. ensure git will ignore the generated pipeline file (named after your ERB pipeline file as `<pipeline_erb_filename>.generated`)
 
 
 ## Concourse pipeline configuration

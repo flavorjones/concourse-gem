@@ -23,7 +23,6 @@ describe "injected rake tasks" do
           end
 
           gitignore = File.read(".gitignore").split("\n")
-          expect(gitignore).to include("ci/myproject.yml.generated")
           expect(gitignore).to include("ci/private.yml")
         end
       end

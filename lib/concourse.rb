@@ -81,7 +81,6 @@ class Concourse
     FileUtils.mkdir_p File.join(directory, "tasks")
     pipelines.each do |pipeline|
       FileUtils.touch pipeline.erb_filename
-      ensure_in_gitignore pipeline.filename
     end
     ensure_in_gitignore secrets_filename
   end
