@@ -4,6 +4,10 @@ The `concourse` gem provides rake tasks to help you manage Concourse CI pipeline
 
 If you're not familiar with Concourse CI, you can read up on it at https://concourse-ci.org
 
+Here's an example pipeline maintained by this gem:
+
+![nokogiri-master](assets/nokogiri-master-pipeline.png)
+
 
 ## Contents
 
@@ -83,12 +87,12 @@ The `concourse:init` task will do a few different things for you:
 
 It might be helpful to look at how other projects are using this gem. Here are a sample, ordered (approximately) from simplest to most complex:
 
-* [`jbarnette/hoe-debugging`](https://github.com/jbarnette/hoe-debugging) has [one pipeline](https://github.com/jbarnette/hoe-debugging/blob/master/concourse/hoe-debugging.yml) testing multiple versions of MRI
-* [`flavorjones/hoe-gemspec`](https://github.com/flavorjones/hoe-gemspec) has [one pipeline](https://github.com/flavorjones/hoe-gemspec/blob/master/concourse/hoe-gemspec.yml) testing multiple versions of MRI __and JRuby__
-* [`flavorjones/calendar-assistant`](https://github.com/flavorjones/calendar-assistant) has [one pipeline](https://github.com/flavorjones/calendar-assistant/blob/master/concourse/calendar-assistant.yml) that runs tests against `master` __and pull-requests__, and uses __secrets__
-* [`flavorjones/mini_portile`](https://github.com/flavorjones/mini_portile) has [one pipeline](https://github.com/flavorjones/mini_portile/blob/master/concourse/mini_portile.yml) running tests on both Linux __and Windows__.
-* [`flavorjones/chromedriver-helper`](https://github.com/flavorjones/chromedriver-helper) has __two pipelines__ testing [master](https://github.com/flavorjones/chromedriver-helper/blob/master/concourse/chromedriver-helper.yml) and [pull requests](https://github.com/flavorjones/chromedriver-helper/blob/master/concourse/chromedriver-helper-pr.yml) (see [Rakefile](https://github.com/flavorjones/chromedriver-helper/blob/master/Rakefile#L9-L12) config)
-* [`sparklemotion/nokogiri`](https://github.com/sparklemotion/nokogiri) has [multiple pipelines](https://github.com/sparklemotion/nokogiri/blob/master/concourse/nokogiri.yml) __using `require` and `erbify_file` to share common elements__.
+* [`jbarnette/hoe-debugging`](https://github.com/jbarnette/hoe-debugging) has [one pipeline](https://github.com/jbarnette/hoe-debugging/blob/master/concourse/hoe-debugging.yml) that test multiple versions of MRI. ([see it live](https://ci.nokogiri.org/teams/flavorjones/pipelines/hoe-debugging))
+* [`flavorjones/hoe-gemspec`](https://github.com/flavorjones/hoe-gemspec) has [one pipeline](https://github.com/flavorjones/hoe-gemspec/blob/master/concourse/hoe-gemspec.yml) that test multiple versions of MRI __and JRuby__. ([see it live](https://ci.nokogiri.org/teams/flavorjones/pipelines/hoe-gemspec))
+* [`flavorjones/calendar-assistant`](https://github.com/flavorjones/calendar-assistant) has [one pipeline](https://github.com/flavorjones/calendar-assistant/blob/master/concourse/calendar-assistant.yml) that runs tests against `master` __and pull-requests__, uses __secrets__, and __integrates with Slack__. ([see it live](https://ci.nokogiri.org/teams/calendar-assistants/pipelines/calendar-assistant))
+* [`flavorjones/mini_portile`](https://github.com/flavorjones/mini_portile) has [one pipeline](https://github.com/flavorjones/mini_portile/blob/master/concourse/mini_portile.yml) that run tests on both Linux __and Windows__. ([see it live](https://ci.nokogiri.org/teams/nokogiri-core/pipelines/mini_portile))
+* [`flavorjones/chromedriver-helper`](https://github.com/flavorjones/chromedriver-helper) has __two pipelines__ that test [master](https://github.com/flavorjones/chromedriver-helper/blob/master/concourse/chromedriver-helper.yml) and [pull requests](https://github.com/flavorjones/chromedriver-helper/blob/master/concourse/chromedriver-helper-pr.yml). (see [Rakefile](https://github.com/flavorjones/chromedriver-helper/blob/master/Rakefile#L9-L12) config) (see [master](https://ci.nokogiri.org/teams/flavorjones/pipelines/chromedriver-helper) and [PR](https://ci.nokogiri.org/teams/flavorjones/pipelines/chromedriver-helper-pr) pipelines live)
+* [`sparklemotion/nokogiri`](https://github.com/sparklemotion/nokogiri) has [multiple pipelines](https://github.com/sparklemotion/nokogiri/blob/master/concourse/nokogiri.yml) that __use `require` and `erbify_file` to share common elements__, and __integrate with IRC__. (see [master](https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri) and [PR](https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr) pipelines live)
 
 
 ## Concourse pipeline configuration
