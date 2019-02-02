@@ -1,6 +1,15 @@
 # concourse-gem changelog
 
+## 0.26.0 / 2019-02-02
+
+### Breaking changes
+
+* Generated pipeline files are no longer `.gitignore`d.
+
+
 ## 0.25.0 / 2019-02-02
+
+### Features
 
 * Support running a local ephemeral Concourse cluster with `docker-compose`.
 
