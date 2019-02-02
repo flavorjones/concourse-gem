@@ -58,7 +58,7 @@ describe "injected rake tasks" do
         end
 
         it "is linted with fly" do
-          expect(Rake).to receive(:sh).with("fly validate-pipeline -c #{pipeline.filename}", anything)
+          expect(Rake).to receive(:sh).with("fly -t default validate-pipeline -c #{pipeline.filename}", anything)
 
           shush_stdout do
             concourse.rake_pipeline_generate pipeline

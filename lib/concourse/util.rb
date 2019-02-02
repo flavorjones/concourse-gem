@@ -18,6 +18,10 @@ class Concourse
       File.open(GITIGNORE_FILE, "a") { |f| f.puts file_glob }
     end
 
+    def fly command
+      sh "fly -t #{fly_target} #{command}"
+    end
+
     def sh command
       running "(in #{Dir.pwd}) #{command}"
       Rake.sh command, verbose: false

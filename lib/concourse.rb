@@ -87,7 +87,7 @@ class Concourse
     File.open pipeline.filename, "w" do |f|
       f.write erbify_file(pipeline.erb_filename, working_directory: directory)
     end
-    sh "fly validate-pipeline -c #{pipeline.filename}"
+    fly "validate-pipeline -c #{pipeline.filename}"
   end
 
   def create_tasks!
@@ -139,7 +139,7 @@ class Concourse
             note "using #{secrets_filename} to resolve template vars in #{pipeline.filename}"
             options << "-l '#{secrets_filename}'"
           end
-          sh "fly -t #{fly_target} set-pipeline #{options.join(" ")}"
+          fly "set-pipeline #{options.join(" ")}"
         end
       end
 
@@ -150,7 +150,7 @@ class Concourse
         pipelines.each do |pipeline|
           desc "#{command} the #{pipeline.name} pipeline"
           task "#{command}:#{pipeline.name}" do
-            sh "fly -t #{fly_target} #{command}-pipeline -p #{pipeline.name}"
+            fly "#{command}-pipeline -p #{pipeline.name}"
           end
         end
       end
@@ -196,7 +196,7 @@ class Concourse
           f.write concourse_task["config"].to_yaml
           f.close
           Bundler.with_clean_env do
-            sh "fly -t #{fly_target} execute #{fly_execute_args} -c #{f.path}"
+            fly "execute #{fly_execute_args} -c #{f.path}"
           end
         end
       end
@@ -210,7 +210,7 @@ class Concourse
           pipeline_job, build_id, status = *line.split(/\s+/)[1,3]
           next unless status == "started"
 
-          sh "fly -t #{fly_target} abort-build -j #{pipeline_job} -b #{build_id}"
+          fly "abort-build -j #{pipeline_job} -b #{build_id}"
         end
       end
 
@@ -221,7 +221,7 @@ class Concourse
       task "prune-stalled-workers" do
         `fly -t #{fly_target} workers | fgrep stalled`.each_line do |line|
           worker_id = line.split.first
-          system("fly -t #{fly_target} prune-worker -w #{worker_id}")
+          fly "prune-worker -w #{worker_id}"
         end
       end
     end
