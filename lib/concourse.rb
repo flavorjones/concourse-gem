@@ -17,6 +17,8 @@ class Concourse
   }
 
   DEFAULT_DIRECTORY = "concourse"
+  DEFAULT_FLY_TARGET = "default"
+  DEFAULT_SECRETS = "private.yml"
 
   attr_reader :project_name
   attr_reader :directory
@@ -50,9 +52,9 @@ class Concourse
     @project_name = project_name
 
     @directory = options[:directory] || DEFAULT_DIRECTORY
-    @fly_target = options[:fly_target] || "default"
+    @fly_target = options[:fly_target] || DEFAULT_FLY_TARGET
 
-    base_secrets_filename = options[:secrets_filename] || "private.yml"
+    base_secrets_filename = options[:secrets_filename] || DEFAULT_SECRETS
     @secrets_filename = File.join(@directory, base_secrets_filename)
 
     @pipelines = []
