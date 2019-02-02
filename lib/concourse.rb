@@ -3,6 +3,7 @@ require "concourse/util"
 require "concourse/pipeline"
 require "yaml"
 require "tempfile"
+require "open-uri"
 
 class Concourse
   include Rake::DSL
@@ -17,12 +18,16 @@ class Concourse
   }
 
   DEFAULT_DIRECTORY = "concourse"
+  DEFAULT_FLY_TARGET = "default"
+  DEFAULT_SECRETS = "private.yml"
 
   attr_reader :project_name
   attr_reader :directory
   attr_reader :pipelines
   attr_reader :fly_target
   attr_reader :secrets_filename
+
+  CONCOURSE_DOCKER_COMPOSE = "docker-compose.yml"
 
   def self.url_for fly_target
     matching_line = `fly targets`.split("\n").grep(/^#{fly_target}/).first
@@ -50,9 +55,9 @@ class Concourse
     @project_name = project_name
 
     @directory = options[:directory] || DEFAULT_DIRECTORY
-    @fly_target = options[:fly_target] || "default"
+    @fly_target = options[:fly_target] || DEFAULT_FLY_TARGET
 
-    base_secrets_filename = options[:secrets_filename] || "private.yml"
+    base_secrets_filename = options[:secrets_filename] || DEFAULT_SECRETS
     @secrets_filename = File.join(@directory, base_secrets_filename)
 
     @pipelines = []
@@ -85,7 +90,32 @@ class Concourse
     File.open pipeline.filename, "w" do |f|
       f.write erbify_file(pipeline.erb_filename, working_directory: directory)
     end
-    sh "fly validate-pipeline -c #{pipeline.filename}"
+    fly "validate-pipeline -c #{pipeline.filename}"
+  end
+
+  def rake_concourse_local
+    ensure_docker_compose_file
+    @fly_target = "local"
+    fly "login -u test -p test -c http://127.0.0.1:8080"
+  end
+
+  def ensure_docker_compose_file
+    return if File.exist?(docker_compose_path)
+    note "fetching docker compose file ..."
+    File.open(docker_compose_path, "w") do |f|
+      f.write open("https://concourse-ci.org/docker-compose.yml").read
+    end
+  end
+
+  def rake_concourse_local_up
+    ensure_docker_compose_file
+    docker_compose "up -d"
+    docker_compose "ps"
+  end
+
+  def rake_concourse_local_down
+    ensure_docker_compose_file
+    docker_compose "down"
   end
 
   def create_tasks!
@@ -137,7 +167,7 @@ class Concourse
             note "using #{secrets_filename} to resolve template vars in #{pipeline.filename}"
             options << "-l '#{secrets_filename}'"
           end
-          sh "fly -t #{fly_target} set-pipeline #{options.join(" ")}"
+          fly "set-pipeline #{options.join(" ")}"
         end
       end
 
@@ -148,7 +178,7 @@ class Concourse
         pipelines.each do |pipeline|
           desc "#{command} the #{pipeline.name} pipeline"
           task "#{command}:#{pipeline.name}" do
-            sh "fly -t #{fly_target} #{command}-pipeline -p #{pipeline.name}"
+            fly "#{command}-pipeline -p #{pipeline.name}"
           end
         end
       end
@@ -194,7 +224,7 @@ class Concourse
           f.write concourse_task["config"].to_yaml
           f.close
           Bundler.with_clean_env do
-            sh "fly -t #{fly_target} execute #{fly_execute_args} -c #{f.path}"
+            fly "execute #{fly_execute_args} -c #{f.path}"
           end
         end
       end
@@ -208,7 +238,7 @@ class Concourse
           pipeline_job, build_id, status = *line.split(/\s+/)[1,3]
           next unless status == "started"
 
-          sh "fly -t #{fly_target} abort-build -j #{pipeline_job} -b #{build_id}"
+          fly "abort-build -j #{pipeline_job} -b #{build_id}"
         end
       end
 
@@ -219,7 +249,26 @@ class Concourse
       task "prune-stalled-workers" do
         `fly -t #{fly_target} workers | fgrep stalled`.each_line do |line|
           worker_id = line.split.first
-          system("fly -t #{fly_target} prune-worker -w #{worker_id}")
+          fly "prune-worker -w #{worker_id}"
+        end
+      end
+
+      #
+      #  docker commands
+      #
+      task "local" do
+        rake_concourse_local
+      end
+
+      namespace "local" do
+        desc "start up a docker-compose cluster for local CI"
+        task "up" do
+          rake_concourse_local_up
+        end
+
+        desc "shut down the docker-compose cluster"
+        task "down" do
+          rake_concourse_local_down
         end
       end
     end

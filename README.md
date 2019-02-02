@@ -1,6 +1,6 @@
 # concourse (the rubygem)
 
-The `concourse` gem provides rake tasks to help you manage Concourse pipelines, jobs, and workers, and to assist in running tasks with `fly execute`.
+The `concourse` gem provides rake tasks to help you manage Concourse pipelines, jobs, and workers, to assist in running tasks with `fly execute`, and even run a local ephemeral deployment of Concourse on your development machine.
 
 If you're not familiar with Concourse CI, you can read up on it at https://concourse.ci
 
@@ -31,6 +31,10 @@ If you're not familiar with Concourse CI, you can read up on it at https://conco
   * [Run a Concourse task with `fly execute`](#run-a-concourse-task-with-fly-execute)
   * [Abort running builds](#abort-running-builds)
   * [Prune stalled concourse workers](#prune-stalled-concourse-workers)
+- [Running a local ephemeral Concourse](#running-a-local-ephemeral-concourse)
+  * [Spinning up a local deployment](#spinning-up-a-local-deployment)
+  * [Doing things with the local deployment](#doing-things-with-the-local-deployment)
+  * [Shutting down the local deployment](#shutting-down-the-local-deployment)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -316,6 +320,45 @@ Especially useful if you're deploying via BOSH, which often results in stalled w
 
 ```
 rake concourse:prune-stalled-workers  # prune any stalled workers
+```
+
+
+## Running a local ephemeral Concourse
+
+You can run a local Concourse deployment on your development system, if you have `docker` and `docker-compose` installed.
+
+
+### Spinning up a local deployment
+
+To spin up the local cluster:
+
+``` sh
+rake concourse:local:up
+```
+
+You can view that Concourse deployment at `http://127.0.0.1:8080` using the credentials `test`/`test`.
+
+
+### Doing things with the local deployment
+
+To target that local cluster, simply prepend the `concourse:local` task on the command line. For example, to `fly execute` a task on the local cluster:
+
+``` sh
+rake concourse:local concourse:task[ruby-2.4/rake-task]
+```
+
+Or to push your pipelines to that local cluster:
+
+``` sh
+rake concourse:local concourse:set
+```
+
+### Shutting down the local deployment
+
+Finally, to spin down the cluster (when you're done with it):
+
+``` sh
+rake concourse:local:down
 ```
 
 

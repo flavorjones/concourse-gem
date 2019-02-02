@@ -18,6 +18,18 @@ class Concourse
       File.open(GITIGNORE_FILE, "a") { |f| f.puts file_glob }
     end
 
+    def fly command
+      sh "fly -t #{fly_target} #{command}"
+    end
+
+    def docker_compose command
+      sh "docker-compose -f #{docker_compose_path} #{command}"
+    end
+
+    def docker_compose_path
+      File.join(directory, CONCOURSE_DOCKER_COMPOSE)
+    end
+
     def sh command
       running "(in #{Dir.pwd}) #{command}"
       Rake.sh command, verbose: false

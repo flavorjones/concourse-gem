@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## 0.25.0 / 2019-02-02
+
+* Support running a local ephemeral Concourse cluster with `docker-compose`.
+
+
 ## 0.24.0 / 2019-01-24
 
 ### Features
