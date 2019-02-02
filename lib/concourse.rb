@@ -3,6 +3,7 @@ require "concourse/util"
 require "concourse/pipeline"
 require "yaml"
 require "tempfile"
+require "open-uri"
 
 class Concourse
   include Rake::DSL
@@ -25,6 +26,8 @@ class Concourse
   attr_reader :pipelines
   attr_reader :fly_target
   attr_reader :secrets_filename
+
+  CONCOURSE_DOCKER_COMPOSE = "docker-compose.yml"
 
   def self.url_for fly_target
     matching_line = `fly targets`.split("\n").grep(/^#{fly_target}/).first
@@ -88,6 +91,31 @@ class Concourse
       f.write erbify_file(pipeline.erb_filename, working_directory: directory)
     end
     fly "validate-pipeline -c #{pipeline.filename}"
+  end
+
+  def rake_concourse_local
+    ensure_docker_compose_file
+    @fly_target = "local"
+    fly "login -u test -p test -c http://127.0.0.1:8080"
+  end
+
+  def ensure_docker_compose_file
+    return if File.exist?(docker_compose_path)
+    note "fetching docker compose file ..."
+    File.open(docker_compose_path, "w") do |f|
+      f.write open("https://concourse-ci.org/docker-compose.yml").read
+    end
+  end
+
+  def rake_concourse_local_up
+    ensure_docker_compose_file
+    docker_compose "up -d"
+    docker_compose "ps"
+  end
+
+  def rake_concourse_local_down
+    ensure_docker_compose_file
+    docker_compose "down"
   end
 
   def create_tasks!
@@ -222,6 +250,25 @@ class Concourse
         `fly -t #{fly_target} workers | fgrep stalled`.each_line do |line|
           worker_id = line.split.first
           fly "prune-worker -w #{worker_id}"
+        end
+      end
+
+      #
+      #  docker commands
+      #
+      task "local" do
+        rake_concourse_local
+      end
+
+      namespace "local" do
+        desc "start up a docker-compose cluster for local CI"
+        task "up" do
+          rake_concourse_local_up
+        end
+
+        desc "shut down the docker-compose cluster"
+        task "down" do
+          rake_concourse_local_down
         end
       end
     end

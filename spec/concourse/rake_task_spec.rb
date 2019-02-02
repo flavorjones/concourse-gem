@@ -83,5 +83,49 @@ describe "injected rake tasks" do
         end
       end
     end
+
+    describe "local" do
+      let(:concourse) { Concourse.new "myproject" }
+
+      before do
+        allow(concourse).to receive(:sh).with(anything)
+        allow(concourse).to receive(:ensure_docker_compose_file)
+      end
+
+      it "sets fly_target to 'local' and logs in" do
+        expect(concourse).to receive(:fly).with("login -u test -p test -c http://127.0.0.1:8080")
+        concourse.rake_concourse_local
+        expect(concourse.fly_target).to eq("local")
+      end
+
+      it "fetches the concourse-docker quickstart compose file" do
+        expect(concourse).to receive(:ensure_docker_compose_file)
+        concourse.rake_concourse_local
+      end
+
+      describe "local:up" do
+        it "fetches the concourse-docker quickstart compose file" do
+          expect(concourse).to receive(:ensure_docker_compose_file)
+          concourse.rake_concourse_local_up
+        end
+
+        it "starts up the local cluster" do
+          expect(concourse).to receive(:sh).with("docker-compose -f concourse/docker-compose.yml up -d")
+          concourse.rake_concourse_local_up
+        end
+      end
+
+      describe "local:down" do
+        it "fetches the concourse-docker quickstart compose file" do
+          expect(concourse).to receive(:ensure_docker_compose_file)
+          concourse.rake_concourse_local_down
+        end
+
+        it "shuts down the local cluster" do
+          expect(concourse).to receive(:sh).with("docker-compose -f concourse/docker-compose.yml down")
+          concourse.rake_concourse_local_down
+        end
+      end
+    end
   end
 end
