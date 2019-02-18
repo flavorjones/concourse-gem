@@ -11,10 +11,10 @@ class Concourse
 
   # these numbers/names align with public docker image names
   RUBIES = {
-    mri:     %w[2.3 2.4 2.5 2.6], # docker repository: "ruby"
-    jruby:   %w[9.1 9.2],     # docker repository: "jruby"
-    rbx:     %w[latest],      # docker repository: "rubinius/docker"
-    windows: %w[2.3 2.4 2.5 2.6]  # windows-ruby-dev-tools-release
+    mri: %w[2.3 2.4 2.5 2.6], # docker repository: "ruby"
+    jruby: %w[9.1 9.2],     # docker repository: "jruby"
+    rbx: %w[latest],      # docker repository: "rubinius/docker"
+    windows: %w[2.3 2.4 2.5 2.6],  # windows-ruby-dev-tools-release
   }
 
   DEFAULT_DIRECTORY = "concourse"
@@ -29,13 +29,13 @@ class Concourse
 
   CONCOURSE_DOCKER_COMPOSE = "docker-compose.yml"
 
-  def self.url_for fly_target
+  def self.url_for(fly_target)
     matching_line = `fly targets`.split("\n").grep(/^#{fly_target}/).first
     raise "invalid fly target #{fly_target}" unless matching_line
     matching_line.split(/ +/)[1]
   end
 
-  def self.default_execute_args task
+  def self.default_execute_args(task)
     args = []
     task["config"]["inputs"].each do |input|
       args << "--input=#{input["name"]}=."
@@ -51,7 +51,7 @@ class Concourse
     RUBIES[:mri].select { |r| r =~ /rc/ }
   end
 
-  def initialize project_name, options={}, &block
+  def initialize(project_name, options = {}, &block)
     @project_name = project_name
 
     @directory = options[:directory] || DEFAULT_DIRECTORY
@@ -69,11 +69,11 @@ class Concourse
     end
   end
 
-  def add_pipeline name, erb_filename
+  def add_pipeline(name, erb_filename)
     @pipelines << Concourse::Pipeline.new(name, @directory, erb_filename)
   end
 
-  def pipeline_subcommands command
+  def pipeline_subcommands(command)
     pipelines.collect { |p| "#{command}:#{p.name}" }
   end
 
@@ -234,7 +234,7 @@ class Concourse
       desc "abort all running builds for this concourse team"
       task "abort-builds" do |t, args|
         `fly -t #{fly_target} builds`.each_line do |line|
-          pipeline_job, build_id, status = *line.split(/\s+/)[1,3]
+          pipeline_job, build_id, status = *line.split(/\s+/)[1, 3]
           next unless status == "started"
 
           fly "abort-build -j #{pipeline_job} -b #{build_id}"
