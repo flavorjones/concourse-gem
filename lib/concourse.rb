@@ -85,17 +85,11 @@ class Concourse
     ensure_in_gitignore secrets_filename
   end
 
-  def rake_pipeline_generate pipeline
+  def rake_pipeline_generate(pipeline)
     File.open pipeline.filename, "w" do |f|
       f.write erbify_file(pipeline.erb_filename, working_directory: directory)
     end
     fly "validate-pipeline -c #{pipeline.filename}"
-  end
-
-  def rake_concourse_local
-    ensure_docker_compose_file
-    @fly_target = "local"
-    fly "login -u test -p test -c http://127.0.0.1:8080"
   end
 
   def ensure_docker_compose_file
@@ -104,6 +98,12 @@ class Concourse
     File.open(docker_compose_path, "w") do |f|
       f.write open("https://concourse-ci.org/docker-compose.yml").read
     end
+  end
+
+  def rake_concourse_local
+    ensure_docker_compose_file
+    @fly_target = "local"
+    fly "login -u test -p test -c http://127.0.0.1:8080"
   end
 
   def rake_concourse_local_up
@@ -255,6 +255,7 @@ class Concourse
       #
       #  docker commands
       #
+      desc "set fly target to the local docker-compose cluster"
       task "local" do
         rake_concourse_local
       end

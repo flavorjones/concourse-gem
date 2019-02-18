@@ -1,5 +1,12 @@
 # concourse-gem changelog
 
+## unreleased
+
+### Features
+
+* Provide description for the `concourse:local` rake task.
+
+
 ## v0.26.0 / 2019-02-02
 
 ### Breaking changes
