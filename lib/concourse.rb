@@ -210,7 +210,7 @@ class Concourse
       task "task", [:job_task, :fly_execute_args] => "generate" do |t, args|
         job_task = args[:job_task]
         unless job_task
-          raise "ERROR: must specify a task name, like `rake #{t.name}[target,taskname]`"
+          raise "ERROR: must specify a task name, like `rake #{t.name}[taskname]`"
         end
 
         concourse_task = find_task(job_task)
