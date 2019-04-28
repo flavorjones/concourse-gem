@@ -1,10 +1,16 @@
 # concourse-gem changelog
 
-## unreleased
+## v0.27.0 / 2019-04-28
 
 ### Features
 
 * Provide description for the `concourse:local` rake task.
+* `concourse:task` resolves private variables.
+
+
+### Bug fixes
+
+* Update error message for `concourse:task` task to match actual args.
 
 
 ## v0.26.0 / 2019-02-02
