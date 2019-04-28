@@ -218,7 +218,13 @@ class Concourse
 
         fly_execute_args = args[:fly_execute_args] || Concourse.default_execute_args(concourse_task)
 
+        if File.exist? secrets_filename
+          note "using #{secrets_filename} to resolve template vars"
+          fly_execute_args += " -l '#{secrets_filename}'"
+        end
+
         puts concourse_task.to_yaml
+
         Tempfile.create("concourse-task") do |f|
           f.write concourse_task["config"].to_yaml
           f.close
