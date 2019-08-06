@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.28.0 / 2019-08-06
+
+* update the `concourse/concourse` docker image when a new docker-compose file is downloaded, to ensure the two stay in sync.
+
+
 ## v0.27.0 / 2019-04-28
 
 ### Features
