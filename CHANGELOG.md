@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.29.0 / 2019-10-28
+
+* add `2.7-rc` to the set of MRI Rubies
+
+
 ## v0.28.0 / 2019-08-06
 
 * update the `concourse/concourse` docker image when a new docker-compose file is downloaded, to ensure the two stay in sync.
