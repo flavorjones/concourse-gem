@@ -1,5 +1,16 @@
 # concourse-gem changelog
 
+## v0.31.0 / 2020-01-11
+
+* remove jruby 9.1 (which corresponds to ruby 2.3)
+
+
+## v0.30.0 / 2020-01-11
+
+* remove ruby 2.3, which has reached EOL
+* change ruby 2.7-rc to 2.7 (final)
+
+
 ## v0.29.0 / 2019-10-28
 
 * add `2.7-rc` to the set of MRI Rubies
