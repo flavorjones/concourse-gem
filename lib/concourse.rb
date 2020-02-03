@@ -96,7 +96,7 @@ class Concourse
     return if File.exist?(docker_compose_path)
     note "fetching docker compose file ..."
     File.open(docker_compose_path, "w") do |f|
-      f.write open("https://concourse-ci.org/docker-compose.yml").read
+      f.write URI.open("https://concourse-ci.org/docker-compose.yml").read
       sh "docker pull concourse/concourse"
     end
   end
