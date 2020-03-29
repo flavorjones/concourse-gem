@@ -229,7 +229,7 @@ class Concourse
         Tempfile.create("concourse-task") do |f|
           f.write concourse_task["config"].to_yaml
           f.close
-          Bundler.with_clean_env do
+          Bundler.with_unbundled_env do
             fly "execute #{fly_execute_args} -c #{f.path}"
           end
         end
