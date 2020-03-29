@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.32.0 / 2020-03-29
+
+* avoid deprecation warning for `Bundler.with_clean_env`
+
+
 ## v0.31.0 / 2020-01-11
 
 * remove jruby 9.1 (which corresponds to ruby 2.3)
