@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.33.0 / 2020-03-31
+
+* add `format` option for formatting final pipeline files with `fly format-pipeline`
+
+
 ## v0.32.0 / 2020-03-29
 
 * avoid deprecation warning for `Bundler.with_clean_env`
