@@ -52,7 +52,7 @@ describe "injected rake tasks" do
             concourse.rake_pipeline_generate pipeline
           end
 
-          expect(File.read(pipeline.filename)).to eq(<<~EOYAML)
+          expect(File.read(pipeline.filename)).to(eq(<<~EOYAML))
             digest: 2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae
             result: "The file foo.rb contains a global variable $foo whose value is shamalamadingdong"
           EOYAML
@@ -88,7 +88,7 @@ describe "injected rake tasks" do
             concourse.rake_pipeline_generate pipeline
           end
 
-          expect(File.read(pipeline.filename)).to eq(<<~EOYAML)
+          expect(File.read(pipeline.filename)).to(eq(<<~EOYAML))
             one: 1
             # a local yaml file, which emits content using $foo
             nested_result: shamalamadingdong

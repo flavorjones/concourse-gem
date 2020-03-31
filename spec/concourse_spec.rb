@@ -101,12 +101,12 @@ describe Concourse do
       concourse.pipelines.first.tap do |pipeline|
         expect(pipeline.name).to eq("foo")
         expect(pipeline.directory).to eq(concourse.directory)
-        expect(pipeline.erb_filename). to eq("concourse/fizzle.yml")
+        expect(pipeline.erb_filename).to eq("concourse/fizzle.yml")
       end
       concourse.pipelines.last.tap do |pipeline|
         expect(pipeline.name).to eq("bar")
         expect(pipeline.directory).to eq(concourse.directory)
-        expect(pipeline.erb_filename). to eq("concourse/fozzle.yml")
+        expect(pipeline.erb_filename).to eq("concourse/fozzle.yml")
       end
     end
   end
