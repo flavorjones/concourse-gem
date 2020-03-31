@@ -29,8 +29,10 @@ describe "injected rake tasks" do
     end
 
     describe "generate" do
+      let(:concourse_options) { Hash.new }
+
       let(:concourse) do
-        Concourse.new "myproject" do |c|
+        Concourse.new "myproject", concourse_options do |c|
           c.add_pipeline "test-require", "test-require.yml"
           c.add_pipeline "test-erbify_file", "test-erbify_file.yml"
         end
@@ -61,6 +63,19 @@ describe "injected rake tasks" do
 
           shush_stdout do
             concourse.rake_pipeline_generate pipeline
+          end
+        end
+
+        context "'format' is true" do
+          let(:concourse_options) { { format: true } }
+
+          it "is formatted with fly" do
+            expect(Rake).to receive(:sh).with(match(/^fly.*validate-pipeline.*/), anything)
+            expect(Rake).to receive(:sh).with("fly -t default format-pipeline -c #{pipeline.filename} -w", anything)
+
+            shush_stdout do
+              concourse.rake_pipeline_generate pipeline
+            end
           end
         end
       end

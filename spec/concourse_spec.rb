@@ -53,6 +53,17 @@ describe Concourse do
     end
   end
 
+  describe "#format" do
+    it "default to false'" do
+      expect(Concourse.new("myproject").format).to be_falsey
+    end
+
+    it "optionally accepts a format boolean" do
+      expect(Concourse.new("myproject", format: true).format).to eq(true)
+      expect(Concourse.new("myproject", format: false).format).to eq(false)
+    end
+  end
+
   describe "#pipelines" do
     context "by default" do
       it "has one pipeline named after the project name" do

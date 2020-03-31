@@ -225,6 +225,17 @@ Concourse.new("myproject", fly_target: "myci").create_tasks! # `fly -t myci <com
 ```
 
 
+### `format`: Emit the final pipelines in `fly format-pipeline` canonical format
+
+If you'd prefer to have your final pipeline files in `fly`'s "canonical format" (via `format-pipeline`), then set this to true!
+
+``` ruby
+Concourse.new("myproject", format: true).create_tasks!
+```
+
+This might be useful if you're heavily refactoring your template, and want to make sure there aren't unexpected changes to the pipeline.
+
+
 ### `pipeline_erb_filename`: Pipeline filename
 
 By default the pipeline file will be named `<myproject>.yml`, but can be set to something else:

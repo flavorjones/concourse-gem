@@ -26,6 +26,7 @@ class Concourse
   attr_reader :pipelines
   attr_reader :fly_target
   attr_reader :secrets_filename
+  attr_reader :format
 
   CONCOURSE_DOCKER_COMPOSE = "docker-compose.yml"
 
@@ -56,6 +57,7 @@ class Concourse
 
     @directory = options[:directory] || DEFAULT_DIRECTORY
     @fly_target = options[:fly_target] || DEFAULT_FLY_TARGET
+    @format = options.has_key?(:format) ? options[:format] : false
 
     base_secrets_filename = options[:secrets_filename] || DEFAULT_SECRETS
     @secrets_filename = File.join(@directory, base_secrets_filename)
@@ -90,6 +92,7 @@ class Concourse
       f.write erbify_file(pipeline.erb_filename, working_directory: directory)
     end
     fly "validate-pipeline -c #{pipeline.filename}"
+    fly "format-pipeline -c #{pipeline.filename} -w" if format
   end
 
   def ensure_docker_compose_file
