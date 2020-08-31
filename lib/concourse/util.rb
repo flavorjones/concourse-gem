@@ -18,8 +18,9 @@ class Concourse
       File.open(GITIGNORE_FILE, "a") { |f| f.puts file_glob }
     end
 
-    def fly command
-      sh "fly -t #{fly_target} #{command}"
+    def fly command, args
+      command_args = Array(fly_args[command])
+      sh "fly -t #{fly_target} #{command} #{command_args.join(" ")} #{args}"
     end
 
     def docker_compose command

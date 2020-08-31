@@ -25,6 +25,7 @@ class Concourse
   attr_reader :directory
   attr_reader :pipelines
   attr_reader :fly_target
+  attr_reader :fly_args
   attr_reader :secrets_filename
   attr_reader :format
 
@@ -58,6 +59,11 @@ class Concourse
     @directory = options[:directory] || DEFAULT_DIRECTORY
     @fly_target = options[:fly_target] || DEFAULT_FLY_TARGET
     @format = options.has_key?(:format) ? options[:format] : false
+    @fly_args = options.keys.grep(/^fly_args_/).inject({}) do |hash, key|
+      fly_command = key.to_s.gsub(/^fly_args_/, "").gsub("_", "-")
+      hash[fly_command] = options[key]
+      hash
+    end
 
     base_secrets_filename = options[:secrets_filename] || DEFAULT_SECRETS
     @secrets_filename = File.join(@directory, base_secrets_filename)
@@ -91,8 +97,8 @@ class Concourse
     File.open pipeline.filename, "w" do |f|
       f.write erbify_file(pipeline.erb_filename, working_directory: directory)
     end
-    fly "validate-pipeline -c #{pipeline.filename}"
-    fly "format-pipeline -c #{pipeline.filename} -w" if format
+    fly "validate-pipeline", "-c #{pipeline.filename}"
+    fly "format-pipeline", "-c #{pipeline.filename} -w" if format
   end
 
   def ensure_docker_compose_file
@@ -107,7 +113,7 @@ class Concourse
   def rake_concourse_local
     ensure_docker_compose_file
     @fly_target = "local"
-    fly "login -u test -p test -c http://127.0.0.1:8080"
+    fly "login", "-u test -p test -c http://127.0.0.1:8080"
   end
 
   def rake_concourse_local_up
@@ -170,7 +176,7 @@ class Concourse
             note "using #{secrets_filename} to resolve template vars in #{pipeline.filename}"
             options << "-l '#{secrets_filename}'"
           end
-          fly "set-pipeline #{options.join(" ")}"
+          fly "set-pipeline", options.join(" ")
         end
       end
 
@@ -181,7 +187,7 @@ class Concourse
         pipelines.each do |pipeline|
           desc "#{command} the #{pipeline.name} pipeline"
           task "#{command}:#{pipeline.name}" do
-            fly "#{command}-pipeline -p #{pipeline.name}"
+            fly "#{command}-pipeline", "-p #{pipeline.name}"
           end
         end
       end
@@ -233,7 +239,7 @@ class Concourse
           f.write concourse_task["config"].to_yaml
           f.close
           Bundler.with_unbundled_env do
-            fly "execute #{fly_execute_args} -c #{f.path}"
+            fly "execute", "#{fly_execute_args} -c #{f.path}"
           end
         end
       end
@@ -247,7 +253,7 @@ class Concourse
           pipeline_job, build_id, status = *line.split(/\s+/)[1, 3]
           next unless status == "started"
 
-          fly "abort-build -j #{pipeline_job} -b #{build_id}"
+          fly "abort-build", "-j #{pipeline_job} -b #{build_id}"
         end
       end
 
@@ -258,7 +264,7 @@ class Concourse
       task "prune-stalled-workers" do
         `fly -t #{fly_target} workers | fgrep stalled`.each_line do |line|
           worker_id = line.split.first
-          fly "prune-worker -w #{worker_id}"
+          fly "prune-worker", "-w #{worker_id}"
         end
       end
 

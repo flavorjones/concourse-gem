@@ -257,6 +257,19 @@ Concourse.new("myproject", secrets_filename: "secrets.yml").create_tasks!
 ```
 
 
+### `fly_args_<fly_command>`: fly command arguments
+
+Rarely, you may need to inject additional commandline arguments into `fly` to get the behavior you want. For example, I wanted to inject `--enable-across-step` into my `validate-pipeline` commands when I started exploring matrix builds via [the `across` step](https://github.com/vito/rfcs/blob/spatial-resources/029-across-step/proposal.md).
+
+You can pass in additional keys named `fly_args_<command-name-with-underscores>` like this:
+
+``` ruby
+Concourse.new("myproject", fly_args_validate_pipeline: "--enable-across-step --another-flag")
+```
+
+With the above initializer call, whenever the `concourse` gem invokes `validate-pipeline`, it will inject `--enable-across-step --another-flag`.
+
+
 ## Rake Tasks
 
 
