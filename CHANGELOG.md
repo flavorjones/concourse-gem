@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.34.0 / 2020-08-31
+
+* allow injection of fly command arguments via `fly_args_<command_name>`
+
+
 ## v0.33.0 / 2020-03-31
 
 * add `format` option for formatting final pipeline files with `fly format-pipeline`
