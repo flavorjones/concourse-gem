@@ -133,8 +133,6 @@ class Concourse
     end
 
     pipelines.each do |pipeline|
-      CLOBBER.include pipeline.filename if defined?(CLOBBER)
-
       unless File.exist? pipeline.erb_filename
         warn "WARNING: concourse template #{pipeline.erb_filename.inspect} does not exist, run `rake concourse:init`"
       end
