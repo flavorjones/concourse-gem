@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.35.0 / 2020-09-07
+
+* remove "clean" rake task (generated pipelines have been recommended for checkin to source control since v0.26.0)
+
+
 ## v0.34.0 / 2020-08-31
 
 * allow injection of fly command arguments via `fly_args_<command_name>`
