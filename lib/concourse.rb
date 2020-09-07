@@ -239,7 +239,7 @@ class Concourse
           f.write concourse_task["config"].to_yaml
           f.close
           Bundler.with_unbundled_env do
-            fly "execute", "#{fly_execute_args} -c #{f.path}"
+            fly "execute", [fly_execute_args, "-c #{f.path}"].compact.join(" ")
           end
         end
       end

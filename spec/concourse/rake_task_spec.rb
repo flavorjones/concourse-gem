@@ -107,7 +107,7 @@ describe "injected rake tasks" do
       end
 
       it "sets fly_target to 'local' and logs in" do
-        expect(concourse).to receive(:fly).with("login -u test -p test -c http://127.0.0.1:8080")
+        expect(concourse).to receive(:fly).with("login", "-u test -p test -c http://127.0.0.1:8080")
         concourse.rake_concourse_local
         expect(concourse.fly_target).to eq("local")
       end

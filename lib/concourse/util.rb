@@ -20,7 +20,7 @@ class Concourse
 
     def fly command, args
       command_args = Array(fly_args[command])
-      sh "fly -t #{fly_target} #{command} #{command_args.join(" ")} #{args}"
+      sh ["fly -t", fly_target, command, command_args, args].flatten.compact.join(" ")
     end
 
     def docker_compose command
