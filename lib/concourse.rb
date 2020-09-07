@@ -192,13 +192,6 @@ class Concourse
         end
       end
 
-      desc "remove generated pipeline files"
-      task "clean" do
-        pipelines.each do |pipeline|
-          rm_f pipeline.filename
-        end
-      end
-
       #
       #  task commands
       #
