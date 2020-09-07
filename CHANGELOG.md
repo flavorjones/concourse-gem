@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.36.0 / 2020-09-07
+
+* remove generated pipelines from rake's "CLOBBER" global (generated pipelines have been recommended for checkin to source control since v0.26.0)
+
+
 ## v0.35.0 / 2020-09-07
 
 * remove "clean" rake task (generated pipelines have been recommended for checkin to source control since v0.26.0)
