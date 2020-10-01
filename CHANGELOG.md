@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.38.0 / 2020-10-01
+
+* add ruby 3.0-rc
+
+
 ## v0.37.0 / 2020-10-01
 
 * add TruffleRuby ("truffle") as a known Ruby
