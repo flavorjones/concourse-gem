@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.37.0 / 2020-10-01
+
+* add TruffleRuby ("truffle") as a known Ruby
+
+
 ## v0.36.0 / 2020-09-07
 
 * remove generated pipelines from rake's "CLOBBER" global (generated pipelines have been recommended for checkin to source control since v0.26.0)
