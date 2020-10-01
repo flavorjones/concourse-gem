@@ -15,6 +15,7 @@ class Concourse
     jruby: %w[9.2], # docker repository: "jruby"
     rbx: %w[latest], # docker repository: "rubinius/docker"
     windows: %w[2.3 2.4 2.5 2.6], # windows-ruby-dev-tools-release
+    truffle: %w[stable nightly] # docker repository: flavorjones/truffleruby
   }
 
   DEFAULT_DIRECTORY = "concourse"
