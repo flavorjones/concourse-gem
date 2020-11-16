@@ -1,0 +1,5 @@
+#@ load("injected.star", "injected_name")
+% require "digest" # file from stdlib
+---
+digest: <%= Digest::SHA256.hexdigest('foo') %>
+injected_name: #@ injected_name

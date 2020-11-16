@@ -37,6 +37,7 @@ describe "injected rake tasks" do
           c.add_pipeline "test-erbify_file", "test-erbify_file.yml"
           c.add_pipeline "test-ytt", "test-ytt.yml", ytt: true
           c.add_pipeline "test-ytt-with-config", "test-ytt-with-config.yml", ytt: "yttconfig"
+          c.add_pipeline "test-erb-and-ytt", "test-erb-and-ytt.yml", ytt: "yttconfig"
         end
       end
 
@@ -123,6 +124,21 @@ describe "injected rake tasks" do
 
           expect(File.read(pipeline.filename)).to(eq(<<~EOYAML))
             version: "42.0"
+            injected_name: variable set through config
+          EOYAML
+        end
+      end
+
+      context "a pipeline that uses both ytt and erb, wtfbbq" do
+        let(:pipeline) { concourse.pipelines.find { |p| p.name == "test-erb-and-ytt" } }
+
+        it "runs the pipeline file through erb and then ytt" do
+          shush_stdout do
+            concourse.rake_pipeline_generate pipeline
+          end
+
+          expect(File.read(pipeline.filename)).to(eq(<<~EOYAML))
+            digest: 2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae
             injected_name: variable set through config
           EOYAML
         end
