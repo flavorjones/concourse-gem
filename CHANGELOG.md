@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## v0.39.0 / 2020-11-16
+
+* add support for [YTT](https://get-ytt.io/) pipeline templates
+
+
 ## v0.38.0 / 2020-10-01
 
 * add ruby 3.0-rc
