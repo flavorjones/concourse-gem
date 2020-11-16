@@ -95,9 +95,7 @@ class Concourse
   end
 
   def rake_pipeline_generate(pipeline)
-    File.open pipeline.filename, "w" do |f|
-      f.write erbify_file(pipeline.erb_filename, working_directory: directory)
-    end
+    pipeline.generate
     fly "validate-pipeline", "-c #{pipeline.filename}"
     fly "format-pipeline", "-c #{pipeline.filename} -w" if format
   end
