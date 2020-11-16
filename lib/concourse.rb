@@ -29,6 +29,7 @@ class Concourse
   attr_reader :fly_args
   attr_reader :secrets_filename
   attr_reader :format
+  attr_reader :ytt
 
   CONCOURSE_DOCKER_COMPOSE = "docker-compose.yml"
 
@@ -60,6 +61,7 @@ class Concourse
     @directory = options[:directory] || DEFAULT_DIRECTORY
     @fly_target = options[:fly_target] || DEFAULT_FLY_TARGET
     @format = options.has_key?(:format) ? options[:format] : false
+    @ytt = options.has_key?(:ytt) ? options[:ytt] : false
     @fly_args = options.keys.grep(/^fly_args_/).inject({}) do |hash, key|
       fly_command = key.to_s.gsub(/^fly_args_/, "").gsub("_", "-")
       hash[fly_command] = options[key]
@@ -74,12 +76,12 @@ class Concourse
       block.call(self)
       create_tasks!
     else
-      add_pipeline(@project_name, (options[:pipeline_erb_filename] || "#{project_name}.yml"))
+      add_pipeline(@project_name, (options[:pipeline_erb_filename] || "#{project_name}.yml"), {ytt: ytt})
     end
   end
 
-  def add_pipeline(name, erb_filename)
-    @pipelines << Concourse::Pipeline.new(name, @directory, erb_filename)
+  def add_pipeline(name, erb_filename, options={})
+    @pipelines << Concourse::Pipeline.new(name, @directory, erb_filename, options)
   end
 
   def pipeline_subcommands(command)
@@ -95,9 +97,7 @@ class Concourse
   end
 
   def rake_pipeline_generate(pipeline)
-    File.open pipeline.filename, "w" do |f|
-      f.write erbify_file(pipeline.erb_filename, working_directory: directory)
-    end
+    pipeline.generate
     fly "validate-pipeline", "-c #{pipeline.filename}"
     fly "format-pipeline", "-c #{pipeline.filename} -w" if format
   end

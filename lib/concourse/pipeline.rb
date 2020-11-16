@@ -1,12 +1,31 @@
 class Concourse
   class Pipeline
-    attr_reader :name, :directory, :erb_filename, :filename
+    include Concourse::Util
 
-    def initialize name, directory, erb_filename
+    attr_reader :name, :directory, :erb_filename, :filename, :ytt
+
+    def initialize name, directory, erb_filename, options={}
       @name = name
       @directory = directory
       @erb_filename = File.join(@directory, erb_filename)
       @filename = File.join(@directory, erb_filename + ".generated")
+      @ytt = options.key?(:ytt) ? options[:ytt] : false
+    end
+
+    def generate
+      Tempfile.create(["pipeline", ".yml"]) do |f|
+        f.write erbify_file(erb_filename, working_directory: directory)
+        f.close
+
+        if ytt
+          ytt_args = ["-f #{f.path}"]
+          ytt_args << "-f #{File.expand_path(File.join(File.dirname(__FILE__), "ytt"))}"
+          ytt_args << "-f #{File.join(directory, ytt)}" if ytt.is_a?(String)
+          sh ["ytt", ytt_args, "> #{filename}"].flatten.join(" ")
+        else
+          FileUtils.mv f.path, filename, force: true
+        end
+      end
     end
   end
 end

@@ -1,0 +1,6 @@
+#@ load("injected.star", "injected_name")
+#@ version = "42.0"
+
+---
+version: #@ version
+injected_name: #@ injected_name
