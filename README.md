@@ -22,12 +22,14 @@ Here's an example pipeline maintained by this gem:
 - [Real-world Examples](#real-world-examples)
 - [Concourse pipeline configuration](#concourse-pipeline-configuration)
   * [ERB Templating](#erb-templating)
-  * [`RUBIES`](#rubies)
+  * [YTT Templating](#ytt-templating)
+  * [Mixing ERB and YTT Templating](#mixing-erb-and-ytt-templating)
   * [Secrets](#secrets)
   * [Multiple pipelines](#multiple-pipelines)
 - [Configuration](#configuration)
   * [`directory`: Concourse subdirectory name](#directory-concourse-subdirectory-name)
   * [`fly_target`: Concourse `fly` target name](#fly_target-concourse-fly-target-name)
+  * [`ytt`: boolean, or a YTT configuration directory name](#ytt-boolean-or-a-ytt-configuration-directory-name)
   * [`format`: Emit the final pipelines in `fly format-pipeline` canonical format](#format-emit-the-final-pipelines-in-fly-format-pipeline-canonical-format)
   * [`pipeline_erb_filename`: Pipeline filename](#pipeline_erb_filename-pipeline-filename)
   * [`secrets_filename`: Secrets filename](#secrets_filename-secrets-filename)
@@ -122,7 +124,7 @@ resources:
 (If you're unfamiliar with ERB and how you can mix Ruby into the document, you can [read about it here](https://www.stuartellis.name/articles/erb/).)
 
 
-### `RUBIES`
+#### `RUBIES`
 
 The ruby variable `RUBIES` is defined in the ERB binding during pipeline file generation. This variable looks like:
 
@@ -156,6 +158,71 @@ jobs:
 ```
 
 Note that the `windows` rubies are not Docker images, since Concourse's Houdini backend doesn't use Docker. Instead, these are implicitly referring to the supported ruby versions installed by the BOSH release at https://github.com/flavorjones/windows-ruby-dev-tools-release
+
+
+### YTT Templating
+
+As of v0.39.0, YTT templates are also supported. It's off by default, but you can enable it by passing `ytt: true` to the `Concourse.new` or `Concourse#add_pipeline` calls in your Rakefile (see below for more context).
+
+Your Concourse pipeline configuration file, `<myproject>.yml` (or whatever you've configured with the `:pipeline_erb_filename` parameter), will be treated like a YTT template.
+
+You can optionally specify a directory containing your YTT configuration files (`.star` files and `.yml` templates) so that you can inject project-specific logic.
+
+(If you're unfamiliar with YTT, you can [read about it here](https://get-ytt.io/).)
+
+
+#### Rubies
+
+These YTT variables are defined by the gem, and can be used in your template:
+
+```starlark
+#! ruby.star
+cruby_versions = {
+    "supported": ["2.4", "2.5", "2.6", "2.7"],
+    "out_of_support": ["2.3", "2.2", "2.1", "2.0.0"],
+    "beta": ["3.0-rc"]
+}
+jruby_versions = {
+    "supported": ["9.2"],
+    "out_of_support": ["9.1"],
+    "beta": []
+}
+truffleruby_versions = {
+    "supported": ["stable"],
+    "out_of_support": [],
+    "beta": ["nightly"]
+}
+```
+
+Here's a simple example:
+
+``` yaml
+# myproject.yml
+
+#@ load("ruby.star", "cruby_versions")
+
+---
+jobs:
+#@ for ruby_version in cruby_versions["supported"]:
+  - name: #@ "ruby-{}".format(ruby_version)
+    plan:
+      ...
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: "ruby"
+              tag: #@ "mri-{}".format(ruby_version)
+    ...
+#@ end
+```
+
+
+### Mixing ERB and YTT Templating
+
+Why would you do this? Well, if you really want to, I'll tell you a secret: we treat the YTT templates as though they're *also* ERB templates. So go crazy.
 
 
 ### Secrets
@@ -206,6 +273,10 @@ Note that when you use the block form:
 * it's not necessary to explicitly call `#create_tasks!`
 * only the pipelines declared via `#add_pipeline` will be managed
 
+Note also that `Concourse#add_pipeline` takes additional options:
+
+* `ytt`: same as the global `ytt` configuration below
+
 
 ## Configuration
 
@@ -225,6 +296,15 @@ If the initializer is given no additional parameters, your fly target is assumed
 ``` ruby
 Concourse.new("myproject", fly_target: "myci").create_tasks! # `fly -t myci <command>`
 ```
+
+
+### `ytt`: Enable YTT templating
+
+By default, this option is `false` and pipelines are treated as ERB templates.
+
+Setting this to `true` will run the file through first ERB (which will be a no-op if you're not using ERB) and then through YTT.
+
+Setting this to a `String` argument containing a directory path will cause YTT to be invoked with a `-f` option loading that directory.
 
 
 ### `format`: Emit the final pipelines in `fly format-pipeline` canonical format
