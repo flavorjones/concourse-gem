@@ -19,7 +19,8 @@ class Concourse
 
         if ytt
           ytt_args = ["-f #{f.path}"]
-          ytt_args.prepend("-f #{File.join(directory, ytt)}") if ytt.is_a?(String)
+          ytt_args << "-f #{File.expand_path(File.join(File.dirname(__FILE__), "ytt"))}"
+          ytt_args << "-f #{File.join(directory, ytt)}" if ytt.is_a?(String)
           sh ["ytt", ytt_args, "> #{filename}"].flatten.join(" ")
         else
           FileUtils.mv f.path, filename, force: true
