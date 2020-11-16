@@ -35,6 +35,8 @@ describe "injected rake tasks" do
         Concourse.new "myproject", concourse_options do |c|
           c.add_pipeline "test-require", "test-require.yml"
           c.add_pipeline "test-erbify_file", "test-erbify_file.yml"
+          c.add_pipeline "test-ytt", "test-ytt.yml", ytt: true
+          c.add_pipeline "test-ytt-with-config", "test-ytt-with-config.yml", ytt: "yttconfig"
         end
       end
 
@@ -93,6 +95,35 @@ describe "injected rake tasks" do
             # a local yaml file, which emits content using $foo
             nested_result: shamalamadingdong
             two: 2
+          EOYAML
+        end
+      end
+
+      context "a pipeline that uses ytt" do
+        let(:pipeline) { concourse.pipelines.find { |p| p.name == "test-ytt" } }
+
+        it "runs the pipeline file through ytt" do
+          shush_stdout do
+            concourse.rake_pipeline_generate pipeline
+          end
+
+          expect(File.read(pipeline.filename)).to(eq(<<~EOYAML))
+            version: "42.0"
+          EOYAML
+        end
+      end
+
+      context "a pipeline that uses ytt and a config directory" do
+        let(:pipeline) { concourse.pipelines.find { |p| p.name == "test-ytt-with-config" } }
+
+        it "runs the pipeline file through ytt using the config directory as an additional input" do
+          shush_stdout do
+            concourse.rake_pipeline_generate pipeline
+          end
+
+          expect(File.read(pipeline.filename)).to(eq(<<~EOYAML))
+            version: "42.0"
+            injected_name: variable set through config
           EOYAML
         end
       end
