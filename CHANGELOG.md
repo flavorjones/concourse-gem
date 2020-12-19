@@ -1,6 +1,6 @@
 # concourse-gem changelog
 
-## unreleased
+## 0.40.0 / 2020-12-19
 
 * remove ruby 2.4, which has reached EOL
 
