@@ -131,10 +131,11 @@ The ruby variable `RUBIES` is defined in the ERB binding during pipeline file ge
 ``` ruby
   # these numbers/names align with public docker image names
   RUBIES = {
-    mri:     %w[2.3 2.4 2.5 2.6], # docker repository: "ruby"
-    jruby:   %w[9.1 9.2],     # docker repository: "jruby"
-    rbx:     %w[latest],      # docker repository: "rubinius/docker"
-    windows: %w[2.3 2.4 2.5 2.6]  # windows-ruby-dev-tools-release
+    mri: %w[2.5 2.6 2.7 3.0-rc], # docker repository: "ruby"
+    jruby: %w[9.2], # docker repository: "jruby"
+    rbx: %w[latest], # docker repository: "rubinius/docker"
+    windows: %w[2.3 2.4 2.5 2.6], # windows-ruby-dev-tools-release
+    truffle: %w[stable nightly] # docker repository: flavorjones/truffleruby
   }
 ```
 
@@ -178,13 +179,13 @@ These YTT variables are defined by the gem, and can be used in your template:
 ```starlark
 #! ruby.star
 cruby_versions = {
-    "supported": ["2.4", "2.5", "2.6", "2.7"],
-    "out_of_support": ["2.3", "2.2", "2.1", "2.0.0"],
+    "out_of_support": ["2.4", "2.3", "2.2", "2.1", "2.0.0"],
+    "supported": ["2.5", "2.6", "2.7"],
     "beta": ["3.0-rc"]
 }
 jruby_versions = {
-    "supported": ["9.2"],
     "out_of_support": ["9.1"],
+    "supported": ["9.2"],
     "beta": []
 }
 truffleruby_versions = {
@@ -429,7 +430,7 @@ rake concourse:task[job_task,fly_execute_args]  # fly execute the specified task
 
 where:
 
-* _required_: `job_task` is formatted as `job-name/task-name`, for example, `ruby-2.4/rake-test`. (See `concourse:tasks` for a list of all available task names.)
+* _required_: `job_task` is formatted as `job-name/task-name`, for example, `ruby-2.7/rake-test`. (See `concourse:tasks` for a list of all available task names.)
 * _optional_: `fly_execute_args` will default to map the project directory to a resource with the project name, e.g. `--input=myproject=.`, so your pipeline must name the input resource appropriately in order to use the default.
 
 
@@ -470,7 +471,7 @@ You can view that Concourse deployment at `http://127.0.0.1:8080` using the cred
 To target that local cluster, simply prepend the `concourse:local` task on the command line. For example, to `fly execute` a task on the local cluster:
 
 ``` sh
-rake concourse:local concourse:task[ruby-2.4/rake-task]
+rake concourse:local concourse:task[ruby-2.7/rake-task]
 ```
 
 Or to push your pipelines to that local cluster:

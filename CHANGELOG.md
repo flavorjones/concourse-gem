@@ -1,5 +1,10 @@
 # concourse-gem changelog
 
+## unreleased
+
+* remove ruby 2.4, which has reached EOL
+
+
 ## v0.39.0 / 2020-11-16
 
 * add support for [YTT](https://get-ytt.io/) pipeline templates

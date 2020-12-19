@@ -1,11 +1,11 @@
 cruby_versions = {
-    "supported": ["2.4", "2.5", "2.6", "2.7"],
-    "out_of_support": ["2.3", "2.2", "2.1", "2.0.0"],
+    "out_of_support": ["2.4", "2.3", "2.2", "2.1", "2.0.0"],
+    "supported": ["2.5", "2.6", "2.7"],
     "beta": ["3.0-rc"]
 }
 jruby_versions = {
-    "supported": ["9.2"],
     "out_of_support": ["9.1"],
+    "supported": ["9.2"],
     "beta": []
 }
 truffleruby_versions = {
