@@ -1,6 +1,12 @@
 # concourse-gem changelog
 
-## 0.40.0 / 2020-12-19
+## v0.41.0 / 2020-12-28
+
+* add ruby 3.0 supported
+* remove ruby 3.0-rc beta
+
+
+## v0.40.0 / 2020-12-19
 
 * remove ruby 2.4, which has reached EOL
 
